@@ -19,3 +19,4 @@ The application has two core components:
    With learning modules, the user will follow a progression-based learning experience. The user will start with the basics of neurons and training methods, and then move up to full scale neural networks and data sets. As they progress, users will be given an interactable interface on which they can try out, visualize, and practice what they just learned. Explanations will be more detailed and in-depth, and the learning experience will be guided, in contrast to the free usage of the sandbox environment.
 
   Overall our product seeks to cater to those who are interested in learning about neural networks, from those who seek an in-depth learning experience to those who are just curious and wish to freely experiment with neurons and layers.
+
