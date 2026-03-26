@@ -50,3 +50,4 @@ def test_urls():
 
 if __name__ == "__main__":
     test_urls()
+    app.run(host="0.0.0.0", port=8080)
