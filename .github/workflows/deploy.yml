@@ -15,8 +15,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/your-app
+            cd /home/ubuntu/neural-web-tool
             git pull origin main
-            source venv/bin/activate
+            source .venv/bin/activate
             pip install -r requirements.txt
-            sudo systemctl restart myapp
+            sudo systemctl restart neural-web-tool
