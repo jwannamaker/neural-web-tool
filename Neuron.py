@@ -25,6 +25,11 @@ Class Neuron:
         self.output = 1 / (1 + np.exp(-self.input_activate))  
         return self.output
     
+
+    #Back propagation and forward function are used together, forward function 
+    #is used to make a prediction, then back propagation is used to adjust
+    #weights and bias to minimize error. this is how the neuron learns
+
     # Back Propagation function - essentially the "learning" part of the neuron
     # Algorithm that calculated error with respect to weight to minimize error
     # def back_propagation(output)
@@ -35,3 +40,10 @@ Class Neuron:
         #change the weight and bias
         self.weight -= learning_rate * delta * self.last_input
         self.bias -= learning_rate * delta
+
+    #Forward function - essentially the prediction part of the neuron
+    #Explanation: Input recieves raw data then normalizes the data
+    # activate function takes the normalized data and applies the values, then gives the output to 
+    # the next layer or final prediction
+    def forward(self, input):
+        
