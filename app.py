@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/index")
 def index():
-    return "<p>This is the base URL<p>"
+    return render_template("index.html")
 
 
 @app.route("/about")
