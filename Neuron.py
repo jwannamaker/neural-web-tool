@@ -19,8 +19,19 @@ Class Neuron:
     # Activation Function
     # Algorithm that allows for non-linear patterns
     # def avtivation(input_activate):
-
-    # Back Propagation function
+    # Sigmoid function, gives output between 1 and 0 which "squeezes" data to be between 1 and 0, which allows for more complex, non-linear patterns to be learned
+    def activate(self, x):
+        self.input_activate = (self.input * self.weight) + self.bias 
+        self.output = 1 / (1 + np.exp(-self.input_activate))  
+        return self.output
+    
+    # Back Propagation function - essentially the "learning" part of the neuron
     # Algorithm that calculated error with respect to weight to minimize error
     # def back_propagation(output)
-        
+    #uses the derivative of the activation (sigmoid) function to calculate error with respect to weight
+    def back_propagation(self, target, learning_rate = 0.1): #learning rate is 0.1 by default
+        error = self.putput - target #calculate error
+        delta = error * self.output * (1 - self.output) #calculate delta using derivative of sigmoid function
+        #change the weight and bias
+        self.weight -= learning_rate * delta * self.last_input
+        self.bias -= learning_rate * delta
