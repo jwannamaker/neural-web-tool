@@ -22,7 +22,13 @@ The application has two core components:
 
 ---
 
-Application Interface
+Initial Application Prototype
+
+<img width="1062" height="596" alt="image" src="https://github.com/user-attachments/assets/8bcb3c07-e1aa-481b-87cb-48c755252e6b" />
+
+
+---
+
+Application Interface (WIP)
 
 <img width="1513" height="593" alt="progress_update" src="https://github.com/user-attachments/assets/fda3ea49-c5a6-453c-958e-2165cf166a6a" />
-
