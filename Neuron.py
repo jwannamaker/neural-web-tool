@@ -54,4 +54,7 @@ Class Neuron:
     # activate function takes the normalized data and applies the values, then gives the output to 
     # the next layer or final prediction
     def forward(self, input):
+        self.input = input
+        return self.activate(input)
+        
         
