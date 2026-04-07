@@ -1,60 +1,66 @@
-import numpy as np            # used to import numpy arrays to store data to be processed
+import numpy as np          
 
-Class Neuron:
-    weight = 0.00             # Float - how much "influence" a neuron has before activation function
-    bias = 0.00               # Float - adjust output of neuron after weights are calculated, allows fine-tuning
-    input = 0.00              # Float - gets input from data or output from previous neuron layer
-    input_activate = 0.00     # Float - (input times weight) plus bias, result given to activation function
-    output = 0.00             # Float = final output from neuron to next layer or final prediction after activation function
+class Neuron:
+    def __init__(self, num_inputs):
+        self.weights = np.random.randn(num_inputs)  #vector of weights for each input
+        self.bias = np.random.randn()               #single bias
+        self.input = None                           #vector
+        self.output = None                          #scalar
     
-   
-    # Parameter Constructor
-    def __init__(self, weight, bias):
-        self.weight = weight
-        self.bias = bias
-        self.input = self
-        self.input_activate = self
-        self.output = self
-
-    # Activation Function - the "processing" part of the neuron, takes the input and output
-    # and normalizes the data to be between 0 and 1, which allows for 
-    # complex patterns to be learned.
-    # Algorithm that allows for non-linear patterns
-    # def avtivation(input_activate):
-    # Sigmoid function, gives output between 1 and 0 which "squeezes" data to be between 1 and 0
-    # which allows for more complex, non-linear patterns to be learned
     def activate(self, x):
-        self.input_activate = (self.input * self.weight) + self.bias 
-        self.output = 1 / (1 + np.exp(-self.input_activate))  
+        #x is the vector of input data
+        self.input = x
+        self.input_activate = np.dot(self.weights, x) + self.bias
+        self.output = 1 / (1 + np.exp(-self.input_activate))  #Sigmoid function to normalize the data
         return self.output
     
-
-    #Back propagation and forward function are used together, forward function 
-    #is used to make a prediction, then back propagation is used to adjust
-    #weights and bias to minimize error. this is how the neuron learns
-
-    # Back Propagation function - essentially the "learning" part of the neuron
-    # Algorithm that calculated error with respect to weight to minimize error
-    # def back_propagation(output)
-    #uses the derivative of the activation (sigmoid) function to calculate error with respect to weight
-
-    #Back propagation has two parts, a forward pass and a backward pass.
-    # the forward pass calculates the output of the neuron, then the backward pass calculates the error
-    # with respect to the values and adjusts to minimize error. 
+    def forward(self, input_vector):
+        return self.activate(input_vector)
     
-    def back_propagation(self, target, learning_rate):
-        error = self.putput - target #calculate error
-        delta = error * self.output * (1 - self.output) #calculate delta using derivative of sigmoid function
-        #change the weight and bias
-        self.weight -= learning_rate * delta * self.last_input
+    def back_propagate(self, target, learning_rate):
+        #error = output - target
+        error = self.output - target
+        #derivative of sigmoid function
+        delta = error * self.output * (1 - self.output)
+        #udpate weights and bias
+        self.weights -= learning_rate * delta * self.input
         self.bias -= learning_rate * delta
+        return delta  #return delta to use for backpropagation in prev layers
 
-    #Forward function - essentially the prediction part of the neuron
-    #Explanation: Input recieves raw data then normalizes the data
-    # activate function takes the normalized data and applies the values, then gives the output to 
-    # the next layer or final prediction
-    def forward(self, input):
-        self.input = input
-        return self.activate(input)
-        
+#layer class holds multiple neurons and manages the forward and backward passes
+class Layer:
+    def __init__(self, num_neurons, num_inputs_per_neuron):
+        self.neurons = [Neuron(num_inputs_per_neuron) for _ in range(num_neurons)]
+    
+    def forward(self, inputs):
+        #inputs is a vector of inputs that are inputted to the layer
+        outputs = [neuron.forward(inputs) for neuron in self.neurons]
+        return np.array(outputs)
+    
+    def back_propagate(self, deltas, learning_rate):
+        #deltas is a vector of deltas from next layer
+        for i, neuron in enumerate(self.neurons):
+            neuron.back_propagate(deltas[i], learning_rate)
+
+class NeuralNetwork:
+    def __init__(self, layer_sizes):
+        #layer_sizes: list like [input_size, hidden1_size, ..., output_size]
+        self.layers = []
+        for i in range(1, len(layer_sizes)):
+            self.layers.append(Layer(layer_sizes[i], layer_sizes[i-1]))
+    
+    def forward(self, inputs):
+        for layer in self.layers:
+            inputs = layer.forward(inputs)
+        return inputs  #final output
+    
+    def train(self, inputs, targets, learning_rate):
+        #Forward pass
+        outputs = self.forward(inputs)
+        #Backpropagate from output layer
+        deltas = outputs - targets  # targets are the expected outputs
+        for layer in reversed(self.layers):
+            layer.back_propagate(deltas, learning_rate)
+            #For hidden layers, deltas would be computed from next layer's weights, need to implement that logic 
+            #requires access to weights of next layer, which needs to be implemented.
         
