@@ -45,5 +45,9 @@ class Neuron:
     #Explanation: Input recieves raw data then normalizes the data
     # activate function takes the normalized data and applies the values, then gives the output to 
     # the next layer or final prediction
-    def forward(self, input):
+   def forward(self, input_data):
+        self.input = input_data
+        self.input_activate = (self.input * self.weight) + self.bias
+        self.output = self.activate(self.input_activate)
+        return self.output
         
