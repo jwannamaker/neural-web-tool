@@ -18,7 +18,6 @@ class Neuron:
         return self.activate(input_vector)
     
     def back_propagate(self, target, learning_rate):
-        #error = output - target
         error = self.output - target
         #derivative of sigmoid function
         delta = error * self.output * (1 - self.output)
