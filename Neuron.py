@@ -1,6 +1,6 @@
 import numpy as np            # used to import numpy arrays to store data to be processed
 
-Class Neuron:
+class Neuron:
     weight = 0.00             # Float - how much "influence" a neuron has before activation function
     bias = 0.00               # Float - adjust output of neuron after weights are calculated, allows fine-tuning
     input = 0.00              # Float - gets input from data or output from previous neuron layer
