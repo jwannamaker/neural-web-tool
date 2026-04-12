@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
+import numpy as np
+from Neuron import NeuralNetwork
 
 app = Flask(__name__)
 
@@ -32,6 +34,25 @@ def sandbox():
 @app.route("/learn")
 def learn():
     return "<p>This will be the learning page<p>"
+
+@app.route("/api/create_network", methods-=["POST"])
+def create_network():
+    data = request.get_json()
+    layer_sizes = data.get("layer_sizes")
+
+    #create and store network
+    network = NeuralNetwork(layer_sizes)
+
+    return jsonify({"message": "Network created successfully", "layer_sizes": layer_sizes})
+
+@app.route("/api/predict", methods=["POST"])
+def predict():
+    global current_network
+    if current_network is None:
+        return jsonify({"error": "No network created yet"}), 400
+    data = request.get_json()
+    output = current_network.forward(np.array(data.get("input")))
+    return jsonify({"output": output.tolist()})
 
 
 # def test_urls():
