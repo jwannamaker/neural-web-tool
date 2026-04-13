@@ -257,7 +257,19 @@ class TestNeuralNetwork:
                     break
         
         assert weights_changed, "Training should update at least some weights"
+ 
+    def test_network_multiple_outputs(self):
+        """Test network with multiple output neurons"""
+        layer_sizes = [2, 3, 3]  #3 output neurons
+        network = NeuralNetwork(layer_sizes)
+        
+        inputs = np.array([0.5, 0.8])
+        outputs = network.forward(inputs)
+        
+        assert outputs.shape == (3,), "Should have 3 outputs"
+        assert all(0 <= o <= 1 for o in outputs), "All outputs should be valid"
     
+     
   
 
 
