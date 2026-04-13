@@ -63,7 +63,24 @@ class TestNeuron:
         #checks if delta is returned
         assert isinstance(delta, (float, np.floating)), "Delta should be a float"
     
-  
+  def test_neuron_sigmoid_properties(self):
+        """Test sigmoid function properties"""
+        neuron = Neuron(1)
+        
+        #test with zero
+        neuron.weights = np.array([0.0])
+        neuron.bias = 0.0
+        output = neuron.forward(np.array([0.0]))
+        assert np.isclose(output, 0.5), "Sigmoid(0) should be 0.5"
+        
+        #test with very large positive
+        neuron.weights = np.array([1.0])
+        neuron.bias = 0.0
+        output = neuron.forward(np.array([10.0]))
+        assert output > 0.99, "Sigmoid of large positive should be close to 1"
+
+
+
 
 
 
