@@ -92,8 +92,71 @@ class TestLayer:
         for neuron in layer.neurons:
             assert neuron.weights.shape == (num_inputs,), "Each neuron should have correct input size"
     
+    def test_layer_forward_pass_shape(self):
+        """Test that layer forward pass returns correct shape"""
+        num_neurons = 4
+        num_inputs = 3
+        layer = Layer(num_neurons, num_inputs)
+        
+        inputs = np.array([0.5, 0.8, 0.3])
+        outputs = layer.forward(inputs)
+        
+        assert outputs.shape == (num_neurons,), "Output shape should match number of neurons"
+        assert all(0 <= o <= 1 for o in outputs), "All outputs should be between 0 and 1"
+    
+    def test_layer_back_propagation(self):
+        """Test that layer backpropagation updates all neurons"""
+        num_neurons = 3
+        num_inputs = 2
+        layer = Layer(num_neurons, num_inputs)
+        
+        
+        inputs = np.array([0.5, 0.8])
+        outputs = layer.forward(inputs)
+        
+        
+        original_weights = [neuron.weights.copy() for neuron in layer.neurons]
+        
+        
+        deltas = np.array([0.1, 0.2, 0.15])
+        layer.back_propagate(deltas, learning_rate=0.1)
+        
+        #check if all weights were updated
+        for i, neuron in enumerate(layer.neurons):
+            assert not np.allclose(neuron.weights, original_weights[i]), \
+                f"Neuron {i} weights should be updated"
 
 
+class TestNeuralNetwork:
+    """Test cases for the NeuralNetwork class"""
+    
+    def test_network_initialization(self):
+        """Test that network initializes with correct number of layers"""
+        layer_sizes = [2, 4, 3, 1]
+        network = NeuralNetwork(layer_sizes)
+        
+        #there should be three layers
+        expected_layers = len(layer_sizes) - 1
+        assert len(network.layers) == expected_layers, "Should have correct number of layers"
+        
+        #check layer sizes
+        assert len(network.layers[0].neurons) == 4, "First hidden layer should have 4 neurons"
+        assert len(network.layers[1].neurons) == 3, "Second hidden layer should have 3 neurons"
+        assert len(network.layers[2].neurons) == 1, "Output layer should have 1 neuron"
+    
+    def test_network_forward_pass_shape(self):
+        """Test that network forward pass returns correct shape"""
+        layer_sizes = [2, 3, 1]
+        network = NeuralNetwork(layer_sizes)
+        
+        inputs = np.array([0.5, 0.8])
+        outputs = network.forward(inputs)
+        
+        #output shape should match output layer size
+        expected_size = layer_sizes[-1]
+        assert isinstance(outputs, np.ndarray), "Output should be numpy array"
+        assert outputs.shape == (expected_size,), f"Output shape should be ({expected_size},)"
+    
 
 
 
