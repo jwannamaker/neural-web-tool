@@ -27,3 +27,5 @@ class TestNeuron:
         #checks if output is stored
         assert neuron.output == output, "Output should be stored"
 
+        
+
