@@ -1,6 +1,8 @@
 import pytest
-import nuimport numpy as np
+import numpy as np
 from Neuron import Neuron, Layer, NeuralNetwork
+
+
 class TestNeuron:
     
     def test_neuron_initialization(self):
@@ -63,7 +65,7 @@ class TestNeuron:
         #checks if delta is returned
         assert isinstance(delta, (float, np.floating)), "Delta should be a float"
     
-  def test_neuron_sigmoid_properties(self):
+    def test_neuron_sigmoid_properties(self):
         """Test sigmoid function properties"""
         neuron = Neuron(1)
         
@@ -157,71 +159,6 @@ class TestNeuralNetwork:
         assert isinstance(outputs, np.ndarray), "Output should be numpy array"
         assert outputs.shape == (expected_size,), f"Output shape should be ({expected_size},)"
     
-    def test_layer_forward_pass_shape(self):
-        """Test that layer forward pass returns correct shape"""
-        num_neurons = 4
-        num_inputs = 3
-        layer = Layer(num_neurons, num_inputs)
-        
-        inputs = np.array([0.5, 0.8, 0.3])
-        outputs = layer.forward(inputs)
-        
-        assert outputs.shape == (num_neurons,), "Output shape should match number of neurons"
-        assert all(0 <= o <= 1 for o in outputs), "All outputs should be between 0 and 1"
-    
-    def test_layer_back_propagation(self):
-        """Test that layer backpropagation updates all neurons"""
-        num_neurons = 3
-        num_inputs = 2
-        layer = Layer(num_neurons, num_inputs)
-        
-        
-        inputs = np.array([0.5, 0.8])
-        outputs = layer.forward(inputs)
-        
-        
-        original_weights = [neuron.weights.copy() for neuron in layer.neurons]
-        
-        
-        deltas = np.array([0.1, 0.2, 0.15])
-        layer.back_propagate(deltas, learning_rate=0.1)
-        
-        #check if all weights were updated
-        for i, neuron in enumerate(layer.neurons):
-            assert not np.allclose(neuron.weights, original_weights[i]), \
-                f"Neuron {i} weights should be updated"
-
-
-class TestNeuralNetwork:
-    """Test cases for the NeuralNetwork class"""
-    
-    def test_network_initialization(self):
-        """Test that network initializes with correct number of layers"""
-        layer_sizes = [2, 4, 3, 1]
-        network = NeuralNetwork(layer_sizes)
-        
-        #there should be three layers
-        expected_layers = len(layer_sizes) - 1
-        assert len(network.layers) == expected_layers, "Should have correct number of layers"
-        
-        #check layer sizes
-        assert len(network.layers[0].neurons) == 4, "First hidden layer should have 4 neurons"
-        assert len(network.layers[1].neurons) == 3, "Second hidden layer should have 3 neurons"
-        assert len(network.layers[2].neurons) == 1, "Output layer should have 1 neuron"
-    
-    def test_network_forward_pass_shape(self):
-        """Test that network forward pass returns correct shape"""
-        layer_sizes = [2, 3, 1]
-        network = NeuralNetwork(layer_sizes)
-        
-        inputs = np.array([0.5, 0.8])
-        outputs = network.forward(inputs)
-        
-        # Output shape should match output layer size
-        expected_size = layer_sizes[-1]
-        assert isinstance(outputs, np.ndarray), "Output should be numpy array"
-        assert outputs.shape == (expected_size,), f"Output shape should be ({expected_size},)"
-    
     def test_network_forward_pass_range(self):
         """Test that network outputs are in valid range (0-1 due to sigmoid)"""
         layer_sizes = [2, 4, 2]
@@ -250,14 +187,16 @@ class TestNeuralNetwork:
         
         #check that at least some weights changed
         weights_changed = False
-        for i, layer in enumerate(network.layers):
-            for j, neuron in enumerate(layer.neurons):
-                if not np.allclose(neuron.weights, original_weights[i * len(original_weights) // len(network.layers) + j]):
+        idx = 0
+        for layer in network.layers:
+            for neuron in layer.neurons:
+                if idx < len(original_weights) and not np.allclose(neuron.weights, original_weights[idx]):
                     weights_changed = True
                     break
+                idx += 1
         
         assert weights_changed, "Training should update at least some weights"
- 
+    
     def test_network_multiple_outputs(self):
         """Test network with multiple output neurons"""
         layer_sizes = [2, 3, 3]  #3 output neurons
@@ -282,8 +221,55 @@ class TestNeuralNetwork:
         
         # Should be trainable
         network.train(inputs, np.array([1.0]), learning_rate=0.1)
-     
-  
+
+
+class TestIntegration:
+    """Integration tests for the complete system"""
+    
+    def test_full_training_pipeline(self):
+        """Test complete training and prediction pipeline"""
+        # Create network
+        layer_sizes = [2, 3, 1]
+        network = NeuralNetwork(layer_sizes)
+        
+        # Training data
+        X_train = [np.array([0.1, 0.1]), np.array([0.9, 0.9])]
+        y_train = [np.array([0.1]), np.array([0.9])]
+        
+        # Initial predictions
+        initial_outputs = [network.forward(x) for x in X_train]
+        
+        # Train
+        for _ in range(50):
+            for inputs, targets in zip(X_train, y_train):
+                network.train(inputs, targets, learning_rate=0.5)
+        
+        # Final predictions
+        final_outputs = [network.forward(x) for x in X_train]
+        
+        # Check that network learned
+        initial_error = sum(abs(initial_outputs[i][0] - y_train[i][0]) for i in range(len(X_train)))
+        final_error = sum(abs(final_outputs[i][0] - y_train[i][0]) for i in range(len(X_train)))
+        
+        assert final_error <= initial_error, "Network should reduce error with training"
+    
+    def test_different_architectures(self):
+        """Test network with various layer configurations"""
+        architectures = [
+            [1, 1],
+            [2, 2],
+            [3, 2, 1],
+            [4, 8, 4, 1],
+            [5, 10, 5, 2],
+        ]
+        
+        for layer_sizes in architectures:
+            network = NeuralNetwork(layer_sizes)
+            inputs = np.random.rand(layer_sizes[0])
+            outputs = network.forward(inputs)
+            
+            assert outputs.shape == (layer_sizes[-1],), \
+                f"Network with {layer_sizes} should output {layer_sizes[-1]} values"
 
 
 
