@@ -79,6 +79,20 @@ class TestNeuron:
         output = neuron.forward(np.array([10.0]))
         assert output > 0.99, "Sigmoid of large positive should be close to 1"
 
+class TestLayer:
+    """Test cases for the Layer class"""
+    
+    def test_layer_initialization(self):
+        """Test that layer initializes with correct number of neurons"""
+        num_neurons = 4
+        num_inputs = 3
+        layer = Layer(num_neurons, num_inputs)
+        
+        assert len(layer.neurons) == num_neurons, "Should have correct number of neurons"
+        for neuron in layer.neurons:
+            assert neuron.weights.shape == (num_inputs,), "Each neuron should have correct input size"
+    
+
 
 
 
