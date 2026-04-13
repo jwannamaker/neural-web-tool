@@ -43,8 +43,8 @@ def labels_to_ndarray(data_sources, data_dir, keys, mnist_dataset):
 
 def plot_sample_images(x_train, image_index):
     mnist_image = x_train[image_index, :].reshape(28, 28)
-     
-    plt.imshow(mnist_image, cmap = "gray")
+    _, fig = plt.subplots() 
+    fig.imshow(mnist_image, cmap = "gray")
 
 def main():
     base_url = "https://ossci-datasets.s3.amazonaws.com/mnist/"
