@@ -13,7 +13,17 @@ class TestNeuron:
         assert neuron.input is None, "Input should start as None"
         assert neuron.output is None, "Output should start as None"
     
-
-
-
+    def test_neuron_forward_pass(self):
+        """Test that neuron forward pass produces output between 0 and 1 (verification that sigmoid is correct)"""
+        neuron = Neuron(2)
+        inputs = np.array([0.5, 0.8])
+        
+        output = neuron.forward(inputs)
+        
+        #checks output
+        assert 0 <= output <= 1, "Sigmoid output should be between 0 and 1"
+        #checks if input is stored
+        assert np.allclose(neuron.input, inputs), "Input should be stored"
+        #checks if output is stored
+        assert neuron.output == output, "Output should be stored"
 
