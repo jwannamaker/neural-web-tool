@@ -268,7 +268,20 @@ class TestNeuralNetwork:
         
         assert outputs.shape == (3,), "Should have 3 outputs"
         assert all(0 <= o <= 1 for o in outputs), "All outputs should be valid"
-    
+
+       def test_network_with_single_neuron(self):
+        """Test network with minimal architecture"""
+        layer_sizes = [1, 1]
+        network = NeuralNetwork(layer_sizes)
+        
+        inputs = np.array([0.5])
+        outputs = network.forward(inputs)
+        
+        assert outputs.shape == (1,), "Should have 1 output"
+        assert 0 <= outputs[0] <= 1, "Output should be valid"
+        
+        # Should be trainable
+        network.train(inputs, np.array([1.0]), learning_rate=0.1)
      
   
 
