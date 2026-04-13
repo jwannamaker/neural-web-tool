@@ -27,5 +27,19 @@ class TestNeuron:
         #checks if output is stored
         assert neuron.output == output, "Output should be stored"
 
+      def test_neuron_activate_same_as_forward(self):
+        """Test that activate and forward produce the same result"""
+        neuron = Neuron(2)
+        inputs = np.array([0.3, 0.7])
         
+        output1 = neuron.activate(inputs)
+        neuron2 = Neuron(2)
+        neuron2.weights = neuron.weights  #same weights
+        neuron2.bias = neuron.bias
+        output2 = neuron2.forward(inputs)
+        
+        assert np.allclose(output1, output2), "activate and forward should give same result"
+    
+
+
 
