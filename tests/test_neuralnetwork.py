@@ -269,7 +269,7 @@ class TestNeuralNetwork:
         assert outputs.shape == (3,), "Should have 3 outputs"
         assert all(0 <= o <= 1 for o in outputs), "All outputs should be valid"
 
-       def test_network_with_single_neuron(self):
+    def test_network_with_single_neuron(self):
         """Test network with minimal architecture"""
         layer_sizes = [1, 1]
         network = NeuralNetwork(layer_sizes)
