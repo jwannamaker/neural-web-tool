@@ -27,7 +27,7 @@ class TestNeuron:
         #checks if output is stored
         assert neuron.output == output, "Output should be stored"
 
-      def test_neuron_activate_same_as_forward(self):
+    def test_neuron_activate_same_as_forward(self):
         """Test that activate and forward produce the same result"""
         neuron = Neuron(2)
         inputs = np.array([0.3, 0.7])
@@ -40,6 +40,32 @@ class TestNeuron:
         
         assert np.allclose(output1, output2), "activate and forward should give same result"
     
+    def test_neuron_back_propagation_updates_weights(self):
+        """Test that backpropagation updates weights and bias"""
+        neuron = Neuron(2)
+        inputs = np.array([0.5, 0.8])
+        target = 1.0
+        learning_rate = 0.1
+        
+        #store og weights
+        original_weights = neuron.weights.copy()
+        original_bias = neuron.bias
+        
+        #forward oass
+        neuron.forward(inputs)
+        
+        #backwards
+        delta = neuron.back_propagate(target, learning_rate)
+        
+        #checks if weights and biases were changed
+        assert not np.allclose(neuron.weights, original_weights), "Weights should be updated"
+        assert neuron.bias != original_bias, "Bias should be updated"
+        #checks if delta is returned
+        assert isinstance(delta, (float, np.floating)), "Delta should be a float"
+    
+  
+
+
 
 
 
