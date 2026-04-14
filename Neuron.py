@@ -190,3 +190,21 @@ class NeuralNetwork:
             Predicted output from the network.
         """
         return self.forward(inputs)
+
+    def compute_loss(self, input, targets):
+        """Compute mean squared error loss for given input and targets.
+
+        Args:
+            input: Input vector.
+            targets: Target output values.
+        Returns:
+            Mean squared error loss.
+        """
+        outputs = self.forward(input)
+        #the mean of (y_hat - y)^2 for all output neurons
+        loss = np.mean((outputs - targets) ** 2)
+        return loss
+
+
+
+
