@@ -1,6 +1,8 @@
 # Authors: The scikit-learn developers
 # SPDX-License-Identifier: BSD-3-Clause
 
+"""Comparison of different classifier algorithms from scikit-learn."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
@@ -68,7 +70,7 @@ i = 1
 for ds_cnt, ds in enumerate(datasets):
     # preprocess dataset, split into training and test part
     X, y = ds
-    X_train, X_test, y_train, y_test = train_test_split(
+    x_train, x_test, y_train, y_test = train_test_split(
         X, y, test_size=0.4, random_state=42
     )
 
@@ -82,11 +84,11 @@ for ds_cnt, ds in enumerate(datasets):
     if ds_cnt == 0:
         ax.set_title("Input data")
     # Plot the training points
-    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train,
+    ax.scatter(x_train[:, 0], x_train[:, 1], c=y_train,
                cmap=cm_bright, edgecolors="k")
     # Plot the testing points
     ax.scatter(
-        X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright,
+        x_test[:, 0], x_test[:, 1], c=y_test, cmap=cm_bright,
         alpha=0.6, edgecolors="k"
     )
     ax.set_xlim(x_min, x_max)
@@ -100,21 +102,21 @@ for ds_cnt, ds in enumerate(datasets):
         ax = plt.subplot(len(datasets), len(classifiers) + 1, i)
 
         clf = make_pipeline(StandardScaler(), clf)
-        clf.fit(X_train, y_train)
-        score = clf.score(X_test, y_test)
+        clf.fit(x_train, y_train)
+        score = clf.score(x_test, y_test)
         DecisionBoundaryDisplay.from_estimator(
             clf, X, cmap=cm, alpha=0.8, ax=ax, eps=0.5
         )
 
         # Plot the training points
         ax.scatter(
-            X_train[:, 0], X_train[:, 1], c=y_train,
+            x_train[:, 0], x_train[:, 1], c=y_train,
             cmap=cm_bright, edgecolors="k"
         )
         # Plot the testing points
         ax.scatter(
-            X_test[:, 0],
-            X_test[:, 1],
+            x_test[:, 0],
+            x_test[:, 1],
             c=y_test,
             cmap=cm_bright,
             edgecolors="k",
@@ -130,7 +132,7 @@ for ds_cnt, ds in enumerate(datasets):
         ax.text(
             x_max - 0.3,
             y_min + 0.3,
-            ("%.2f" % score).lstrip("0"),
+            f"{score:.2f}".lstrip("0"),
             size=15,
             horizontalalignment="right",
         )

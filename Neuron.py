@@ -15,6 +15,7 @@ class Neuron:
         self.bias = np.random.randn()
         self.input = None
         self.output = None
+        self.input_activate = None
 
     def activate(self, x):
         """Apply sigmoid activation function to weighted input plus bias.

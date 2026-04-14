@@ -1,9 +1,18 @@
+"""Utilities for loading and processing MNIST dataset."""
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def load_data(base_url, data_sources, data_dir, request_opts=None):
+    """Download datasets from remote URL.
+
+    Args:
+        base_url: Base URL for downloading data.
+        data_sources: Dictionary mapping names to filenames.
+        data_dir: Directory to save downloaded files.
+        request_opts: Optional request parameters.
+    """
     import requests
 
     if request_opts is None:
@@ -24,6 +33,17 @@ def load_data(base_url, data_sources, data_dir, request_opts=None):
 
 
 def images_to_ndarray(data_sources, data_dir, keys, mnist_dataset):
+    """Convert image data files to numpy arrays.
+
+    Args:
+        data_sources: Dictionary mapping names to filenames.
+        data_dir: Directory containing data files.
+        keys: Keys to load from data_sources.
+        mnist_dataset: Dictionary to populate with loaded images.
+
+    Returns:
+        Updated mnist_dataset with image arrays.
+    """
     import gzip
     from typing import cast
 
@@ -39,6 +59,17 @@ def images_to_ndarray(data_sources, data_dir, keys, mnist_dataset):
 
 
 def labels_to_ndarray(data_sources, data_dir, keys, mnist_dataset):
+    """Convert label data files to numpy arrays.
+
+    Args:
+        data_sources: Dictionary mapping names to filenames.
+        data_dir: Directory containing data files.
+        keys: Keys to load from data_sources.
+        mnist_dataset: Dictionary to populate with loaded labels.
+
+    Returns:
+        Updated mnist_dataset with label arrays.
+    """
     import gzip
     from typing import cast
 
@@ -53,12 +84,19 @@ def labels_to_ndarray(data_sources, data_dir, keys, mnist_dataset):
 
 
 def plot_sample_images(x_train, image_index):
+    """Display a sample image from the training set.
+
+    Args:
+        x_train: Training image data.
+        image_index: Index of image to display.
+    """
     mnist_image = x_train[image_index, :].reshape(28, 28)
     _, fig = plt.subplots()
     fig.imshow(mnist_image, cmap="gray")
 
 
 def main():
+    """Load and process MNIST dataset."""
     base_url = "https://ossci-datasets.s3.amazonaws.com/mnist/"
     data_sources = {
         "training_images": "train-images-idx3-ubyte.gz",

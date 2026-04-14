@@ -229,21 +229,21 @@ class TestIntegration:
         layer_sizes = [2, 3, 1]
         network = NeuralNetwork(layer_sizes)
 
-        X_train = [np.array([0.1, 0.1]), np.array([0.9, 0.9])]
+        x_train = [np.array([0.1, 0.1]), np.array([0.9, 0.9])]
         y_train = [np.array([0.1]), np.array([0.9])]
 
-        initial_outputs = [network.forward(x) for x in X_train]
+        initial_outputs = [network.forward(x) for x in x_train]
 
         for _ in range(50):
-            for inputs, targets in zip(X_train, y_train):
+            for inputs, targets in zip(x_train, y_train):
                 network.train(inputs, targets, learning_rate=0.5)
 
-        final_outputs = [network.forward(x) for x in X_train]
+        final_outputs = [network.forward(x) for x in x_train]
 
         initial_error = sum(abs(initial_outputs[i][0] - y_train[i][0])
-                            for i in range(len(X_train)))
+                            for i in range(len(x_train)))
         final_error = sum(abs(final_outputs[i][0] - y_train[i][0])
-                          for i in range(len(X_train)))
+                          for i in range(len(x_train)))
 
         assert final_error <= initial_error, \
             "Network should reduce error with training"

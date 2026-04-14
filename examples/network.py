@@ -119,6 +119,14 @@ class Network(object):
 
 
 def main():
+    """Initialize and train a neural network."""
     training_data = []
     nn = Network([16, 8, 8, 4])
-    nn.stochastic_gradient_descent(training_data, 
+    nn.stochastic_gradient_descent(training_data, epochs=30,
+                                    mini_batch_size=10,
+                                    eta=3.0,
+                                    test_data=None)
+
+
+if __name__ == "__main__":
+    main()

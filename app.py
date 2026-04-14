@@ -4,7 +4,7 @@ import numpy as np
 from Neuron import NeuralNetwork
 
 app = Flask(__name__)
-current_network = None
+CURRENT_NETWORK = None
 
 
 @app.route("/")
@@ -47,11 +47,11 @@ def learn():
 @app.route("/api/create_network", methods=["POST"])
 def create_network():
     """Create a new neural network with specified layer sizes."""
-    global current_network
+    global CURRENT_NETWORK
     data = request.get_json()
     layer_sizes = data.get("layer_sizes")
 
-    current_network = NeuralNetwork(layer_sizes)
+    CURRENT_NETWORK = NeuralNetwork(layer_sizes)
 
     return jsonify({"message": "Network created successfully",
                     "layer_sizes": layer_sizes})
@@ -60,10 +60,10 @@ def create_network():
 @app.route("/api/predict", methods=["POST"])
 def predict():
     """Make predictions using the current neural network."""
-    if current_network is None:
+    if CURRENT_NETWORK is None:
         return jsonify({"error": "No network created yet"}), 400
     data = request.get_json()
-    output = current_network.forward(np.array(data.get("input")))
+    output = CURRENT_NETWORK.forward(np.array(data.get("input")))
     return jsonify({"output": output.tolist()})
 
 
