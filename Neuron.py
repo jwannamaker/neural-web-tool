@@ -1,71 +1,155 @@
-import numpy as np          
+"""Neural network implementation with neuron, layer, and network classes."""
+import numpy as np
+
 
 class Neuron:
+    """A single neuron with weights, bias, and sigmoid activation function."""
+
     def __init__(self, num_inputs):
-        self.weights = np.random.randn(num_inputs)  #vector of weights for each input
-        self.bias = np.random.randn()               #single bias
-        self.input = None                           #vector
-        self.output = None                          #scalar
-    
+        """Initialize neuron with random weights and bias.
+
+        Args:
+            num_inputs: Number of input connections to this neuron.
+        """
+        self.weights = np.random.randn(num_inputs)
+        self.bias = np.random.randn()
+        self.input = None
+        self.output = None
+
     def activate(self, x):
-        #x is the vector of input data
+        """Apply sigmoid activation function to weighted input plus bias.
+
+        Args:
+            x: Input vector to the neuron.
+
+        Returns:
+            Sigmoid activation output (between 0 and 1).
+        """
         self.input = x
         self.input_activate = np.dot(self.weights, x) + self.bias
-        self.output = 1 / (1 + np.exp(-self.input_activate))  #Sigmoid function to normalize the data
+        self.output = 1 / (1 + np.exp(-self.input_activate))
         return self.output
-    
+
     def forward(self, input_vector):
+        """Forward pass through the neuron.
+
+        Args:
+            input_vector: Input to the neuron.
+
+        Returns:
+            Output from sigmoid activation function.
+        """
         return self.activate(input_vector)
-    
+
     def back_propagate(self, target, learning_rate):
-        #error = output - target
+        """Backpropagation step to update weights and bias.
+
+        Args:
+            target: Target output value.
+            learning_rate: Learning rate for weight updates.
+
+        Returns:
+            Delta value for backpropagation to previous layers.
+        """
         error = self.output - target
-        #derivative of sigmoid function
         delta = error * self.output * (1 - self.output)
-        #udpate weights and bias
         self.weights -= learning_rate * delta * self.input
         self.bias -= learning_rate * delta
-        return delta  #return delta to use for backpropagation in prev layers
+        return delta
 
-#layer class holds multiple neurons and manages the forward and backward passes
+
+
 class Layer:
+    """A layer of neurons that processes inputs in parallel.
+
+    Attributes:
+        neurons: List of neuron objects in this layer.
+    """
+
     def __init__(self, num_neurons, num_inputs_per_neuron):
-        self.neurons = [Neuron(num_inputs_per_neuron) for _ in range(num_neurons)]
-    
+        """Initialize a layer with multiple neurons.
+
+        Args:
+            num_neurons: Number of neurons in this layer.
+            num_inputs_per_neuron: Number of inputs each neuron receives.
+        """
+        self.neurons = [Neuron(num_inputs_per_neuron)
+                        for _ in range(num_neurons)]
+
     def forward(self, inputs):
-        #inputs is a vector of inputs that are inputted to the layer
+        """Forward pass through all neurons in the layer.
+
+        Args:
+            inputs: Input vector to the layer.
+
+        Returns:
+            Array of outputs from all neurons.
+        """
         outputs = [neuron.forward(inputs) for neuron in self.neurons]
         return np.array(outputs)
-    
+
     def back_propagate(self, deltas, learning_rate):
-        #deltas is a vector of deltas from next layer
+        """Backpropagation through all neurons in the layer.
+
+        Args:
+            deltas: Delta values from the next layer.
+            learning_rate: Learning rate for weight updates.
+        """
         for i, neuron in enumerate(self.neurons):
             neuron.back_propagate(deltas[i], learning_rate)
 
+
+
 class NeuralNetwork:
+    """A multi-layer neural network with forward and backward propagation.
+
+    Attributes:
+        layers: List of Layer objects.
+    """
+
     def __init__(self, layer_sizes):
-        #layer_sizes: list like [input_size, hidden1_size, ..., output_size]
+        """Initialize neural network with specified layer architecture.
+
+        Args:
+            layer_sizes: List of layer sizes, e.g., [input_size, hidden_size, output_size]
+        """
         self.layers = []
         for i in range(1, len(layer_sizes)):
             self.layers.append(Layer(layer_sizes[i], layer_sizes[i-1]))
-    
+
     def forward(self, inputs):
+        """Forward pass through all layers.
+
+        Args:
+            inputs: Input vector to the network.
+
+        Returns:
+            Output from the final layer.
+        """
         for layer in self.layers:
             inputs = layer.forward(inputs)
-        return inputs  #final output
-    
+        return inputs
+
     def train(self, inputs, targets, learning_rate):
-        #Forward pass
+        """Training step with forward and backward propagation.
+
+        Args:
+            inputs: Input vector.
+            targets: Target output values.
+            learning_rate: Learning rate for weight updates.
+        """
         outputs = self.forward(inputs)
-        #Backpropagate from output layer
-        deltas = outputs - targets  # targets are the expected outputs
+        deltas = outputs - targets
         for layer in reversed(self.layers):
             layer.back_propagate(deltas, learning_rate)
-            #For hidden layers, deltas would be computed from next layer's weights, need to implement that logic 
-            #requires access to weights of next layer, which needs to be implemented.
-    
-    #hidden layers
-    def predict(self, inputs):
-        return self.forward(inputs)
 
-    
+    def predict(self, inputs):
+        """Make predictions using the trained network.
+
+        Args:
+            inputs: Input vector.
+
+        Returns:
+            Predicted output from the network.
+        """
+        return self.forward(inputs)
