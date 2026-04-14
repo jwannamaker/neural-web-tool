@@ -119,6 +119,6 @@ class Network(object):
 
 
 def main():
-    training_data =  
+    training_data = []
     nn = Network([16, 8, 8, 4])
     nn.stochastic_gradient_descent(training_data, 

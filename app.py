@@ -43,6 +43,7 @@ def learn():
     """Render the learning page."""
     return "<p>This will be the learning page<p>"
 
+
 @app.route("/api/create_network", methods=["POST"])
 def create_network():
     """Create a new neural network with specified layer sizes."""
@@ -55,10 +56,10 @@ def create_network():
     return jsonify({"message": "Network created successfully",
                     "layer_sizes": layer_sizes})
 
+
 @app.route("/api/predict", methods=["POST"])
 def predict():
     """Make predictions using the current neural network."""
-    global current_network
     if current_network is None:
         return jsonify({"error": "No network created yet"}), 400
     data = request.get_json()

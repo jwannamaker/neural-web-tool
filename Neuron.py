@@ -58,7 +58,6 @@ class Neuron:
         return delta
 
 
-
 class Layer:
     """A layer of neurons that processes inputs in parallel.
 
@@ -99,7 +98,6 @@ class Layer:
             neuron.back_propagate(deltas[i], learning_rate)
 
 
-
 class NeuralNetwork:
     """A multi-layer neural network with forward and backward propagation.
 
@@ -111,7 +109,8 @@ class NeuralNetwork:
         """Initialize neural network with specified layer architecture.
 
         Args:
-            layer_sizes: List of layer sizes, e.g., [input_size, hidden_size, output_size]
+            layer_sizes: List of layer sizes, e.g.,
+                [input_size, hidden_size, output_size]
         """
         self.layers = []
         for i in range(1, len(layer_sizes)):

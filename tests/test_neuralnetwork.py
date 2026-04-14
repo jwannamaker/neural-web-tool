@@ -1,5 +1,4 @@
 """Unit tests for neural network implementation."""
-import pytest
 import numpy as np
 from Neuron import Neuron, Layer, NeuralNetwork
 
@@ -78,6 +77,7 @@ class TestNeuron:
         output = neuron.forward(np.array([10.0]))
         assert output > 0.99, "Sigmoid of large positive should be close to 1"
 
+
 class TestLayer:
     """Test cases for the Layer class."""
 
@@ -114,7 +114,7 @@ class TestLayer:
         layer = Layer(num_neurons, num_inputs)
 
         inputs = np.array([0.5, 0.8])
-        outputs = layer.forward(inputs)
+        layer.forward(inputs)
 
         original_weights = [neuron.weights.copy() for neuron in layer.neurons]
 
@@ -159,7 +159,7 @@ class TestNeuralNetwork:
             f"Output shape should be ({expected_size},)"
 
     def test_network_forward_pass_range(self):
-        """Test that network outputs are in valid range (0-1 due to sigmoid)."""
+        """Test that network outputs are valid (0-1 due to sigmoid)."""
         layer_sizes = [2, 4, 2]
         network = NeuralNetwork(layer_sizes)
 
@@ -264,9 +264,4 @@ class TestIntegration:
             outputs = network.forward(inputs)
 
             assert outputs.shape == (layer_sizes[-1],), \
-                f"Network with {layer_sizes} should output {layer_sizes[-1]} values"
-
-
-
-
-
+                f"Network {layer_sizes} should output {layer_sizes[-1]}"
