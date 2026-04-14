@@ -1,26 +1,40 @@
+"""Flask web application for neural network visualization and training."""
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
+current_network = None
 
 
 @app.route("/")
 @app.route("/index")
 def index():
+    """Render the main index page."""
     return render_template("index.html")
 
 
 @app.route("/about")
 def about():
+    """Render the about page."""
     return "<p>This will be an about page<p>"
 
 
-# def test_urls():
-#     with app.test_request_context():
-#         print(url_for("index"))
-#         print(url_for("login"))
-#         print(url_for("playground"))
-#
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Render the login page."""
+    return "<p>This will be login page<p>"
+
+
+@app.route("/user/<username>")
+def profile(username):
+    """Render the user profile page."""
+    return f"<p>This will be a profile page for {username}<p>"
+
+
+@app.route("/sandbox/")
+def sandbox():
+    """Render the sandbox page."""
+    return "<p>This will be a sandbox<p>"
+
 
 if __name__ == "__main__":
-    # test_urls()
     app.run(host="0.0.0.0", port=8080)
