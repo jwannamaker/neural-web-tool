@@ -49,7 +49,8 @@ classifiers = [
 ]
 
 X, y = make_classification(
-    n_features=2, n_redundant=0, n_informative=2, random_state=1, n_clusters_per_class=1
+    n_features=2, n_redundant=0, n_informative=2,
+    random_state=1, n_clusters_per_class=1
 )
 rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
@@ -81,10 +82,12 @@ for ds_cnt, ds in enumerate(datasets):
     if ds_cnt == 0:
         ax.set_title("Input data")
     # Plot the training points
-    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright, edgecolors="k")
+    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train,
+               cmap=cm_bright, edgecolors="k")
     # Plot the testing points
     ax.scatter(
-        X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6, edgecolors="k"
+        X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright,
+        alpha=0.6, edgecolors="k"
     )
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
@@ -105,7 +108,8 @@ for ds_cnt, ds in enumerate(datasets):
 
         # Plot the training points
         ax.scatter(
-            X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright, edgecolors="k"
+            X_train[:, 0], X_train[:, 1], c=y_train,
+            cmap=cm_bright, edgecolors="k"
         )
         # Plot the testing points
         ax.scatter(
