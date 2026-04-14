@@ -63,4 +63,9 @@ class NeuralNetwork:
             layer.back_propagate(deltas, learning_rate)
             #For hidden layers, deltas would be computed from next layer's weights, need to implement that logic 
             #requires access to weights of next layer, which needs to be implemented.
-        
+    
+    #hidden layers
+    def predict(self, inputs):
+        return self.forward(inputs)
+
+    
