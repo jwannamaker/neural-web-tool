@@ -35,6 +35,10 @@ def sandbox():
 def learn():
     return "<p>This will be the learning page<p>"
 
+@app.route("/network")
+def network():
+    return render_template("network.html")
+
 @app.route("/api/create_network", methods-=["POST"])
 def create_network():
     data = request.get_json()
