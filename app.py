@@ -1,7 +1,7 @@
 """Flask web application for neural network visualization and training."""
 from flask import Flask, render_template, request, jsonify
 import numpy as np
-from Neuron import NeuralNetwork
+from neural_network import NeuralNetwork
 
 app = Flask(__name__)
 CURRENT_NETWORK = None
