@@ -1,6 +1,8 @@
 """Unit tests for neural network implementation."""
 import numpy as np
-from Neuron import Neuron, Layer, NeuralNetwork
+from Neuron import Neuron
+from layer import Layer
+from neural_network import NeuralNetwork
 
 
 class TestNeuron:
