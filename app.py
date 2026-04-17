@@ -39,7 +39,7 @@ def learn():
 def network():
     return render_template("network.html")
 
-@app.route("/api/create_network", methods-=["POST"])
+@app.route("/api/create_network", methods=["POST"])
 def create_network():
     data = request.get_json()
     layer_sizes = data.get("layer_sizes")

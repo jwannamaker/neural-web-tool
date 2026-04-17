@@ -1,10 +1,140 @@
 {% extends "base.html" %}
 
-{% block title %}Nueral Network Visualizer{% endblock %}
+{% block title %}Network Visualizer{% endblock %}
 
 {% block content %}
 <h1>Neural Network Visualizer</h1>
+<p>Choose the number of layers and neurons per layer.</p>
 
-<p>starting page for the network visualization feature.</p>
+<div>
+    <label for="layerCount">Number of layers:</label>
+    <input type="number" id="layerCount" value="3" min="1">
+</div>
 
+<br>
+
+<div>
+    <label for="neuronsPerLayer">Neurons per layer:</label>
+    <input type="text" id="neuronsPerLayer" value="4,5,2">
+</div>
+
+<br>
+
+<div>
+    <button onclick="renderNetwork()">Render Network</button>
+</div>
+
+<br>
+
+<div style="position: relative;">
+    <svg id="connectionLayer" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    "></svg>
+
+    <div id="networkContainer" style="
+        display: flex;
+        gap: 40px;
+        align-items: center;
+        border: 1px solid black;
+        padding: 20px;
+        min-height: 300px;
+    ">
+    </div>
+</div>
+
+<script>
+function renderNetwork() {
+    const layerCount = parseInt(document.getElementById("layerCount").value);
+    const neuronInput = document.getElementById("neuronsPerLayer").value;
+
+    const neuronCounts = neuronInput
+        .split(",")
+        .map(n => parseInt(n.trim()))
+        .filter(n => !isNaN(n));
+
+    const container = document.getElementById("networkContainer");
+    const svg = document.getElementById("connectionLayer");
+
+    container.innerHTML = "";
+    svg.innerHTML = "";
+
+    container.style.display = "flex";
+    container.style.gap = "40px";
+    container.style.alignItems = "center";
+
+    if (neuronCounts.length !== layerCount) {
+        container.innerHTML = "<p>Layer count must match neuron list</p>";
+        return;
+    }
+
+    const layers = [];
+
+    neuronCounts.forEach((count, index) => {
+        const layer = document.createElement("div");
+        layer.style.display = "flex";
+        layer.style.flexDirection = "column";
+        layer.style.alignItems = "center";
+        layer.style.gap = "10px";
+
+        const neurons = [];
+
+        for (let i = 0; i < count; i++) {
+            const neuron = document.createElement("div");
+
+            neuron.style.width = "60px";
+            neuron.style.height = "40px";
+            neuron.style.border = "2px solid black";
+            neuron.style.borderRadius = "10px";
+            neuron.style.display = "flex";
+            neuron.style.alignItems = "center";
+            neuron.style.justifyContent = "center";
+
+            neuron.textContent = i + 1;
+
+            layer.appendChild(neuron);
+            neurons.push(neuron);
+        }
+
+        container.appendChild(layer);
+        layers.push(neurons);
+    });
+
+    // draw connections AFTER layout renders
+    setTimeout(() => drawConnections(layers, svg), 50);
+}
+
+function drawConnections(layers, svg) {
+    const svgRect = svg.getBoundingClientRect();
+
+    for (let i = 0; i < layers.length - 1; i++) {
+        const currentLayer = layers[i];
+        const nextLayer = layers[i + 1];
+
+        currentLayer.forEach(fromNeuron => {
+            const fromRect = fromNeuron.getBoundingClientRect();
+
+            nextLayer.forEach(toNeuron => {
+                const toRect = toNeuron.getBoundingClientRect();
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+
+                line.setAttribute("x1", fromRect.right - svgRect.left);
+                line.setAttribute("y1", fromRect.top + fromRect.height / 2 - svgRect.top);
+
+                line.setAttribute("x2", toRect.left - svgRect.left);
+                line.setAttribute("y2", toRect.top + toRect.height / 2 - svgRect.top);
+
+                line.setAttribute("stroke", "black");
+
+                svg.appendChild(line);
+            });
+        });
+    }
+}
+</script>
 {% endblock %}
