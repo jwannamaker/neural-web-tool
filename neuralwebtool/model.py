@@ -7,6 +7,14 @@ from torch.nn import functional as F
 class Network(nn.Module):
     """
     TODO: Use these options for the different activation functions a user can choose from, perhaps in a dropdown menu.
+
+    Reasonable default config:
+    config={
+            "loss": "cross_entropy",
+            "optimizer": "adam",
+            "lr": 0.001,
+            "activations": ["relu", "relu", "linear"],
+        },
     """
 
     ACTIVATION_OPTIONS = {
@@ -51,6 +59,10 @@ class Network(nn.Module):
                 for i in range(len(layer_sizes) - 1)
             ]
         )
+
+        activations = config["activations"]
+
+        
 
     def forward(self, input: Tensor):  # -> Tensor:
         """
