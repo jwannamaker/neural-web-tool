@@ -49,24 +49,30 @@ class Network(nn.Module):
             bias: Learnable bias of the module with shape (out_features) and initialized by uniform(-k,k) where k=1/sqrt(in_features)
         """
         super(Network, self).__init__()
-        self.layers = nn.ModuleList(
-            [
-                nn.Linear(
-                    in_features=layer_sizes[i],
-                    out_features=layer_sizes[i + 1],
-                    bias=True,
-                )
-                for i in range(len(layer_sizes) - 1)
-            ]
-        )
+        self.layers = nn.ModuleDict()
+        self.activations = nn.ModuleDict()
 
-        activations = config["activations"]
+        if len(config["activations"]) != len(layer_sizes) - 1:
+            raise ValueError(
+                "The number of activation functions must be one less than the number of layers."
+            )
 
-        
+        for i in range(len(layer_sizes) - 1):
+            layer_name = f"hidden_{i}" if i < len(layer_sizes) - 2 else "output"
+            layer_name = "input" if i == 0 else layer_name
 
-    def forward(self, input: Tensor):  # -> Tensor:
-        """
-        TODO: Accept different choices as the activation function.
-        TODO: Test that len(activations) == number of layers
-        """
-        pass
+            self.layers[layer_name] = nn.Linear(
+                in_features=layer_sizes[i],
+                out_features=layer_sizes[i + 1],
+                bias=True,
+            )
+
+            self.activations[f"{layer_name}_activate_func"] = self.ACTIVATION_OPTIONS[
+                config["activations"][i]
+            ]()
+
+    def forward(self, x: Tensor) -> Tensor:
+        for layer_name in self.layers.keys():
+            x = self.layers[layer_name](x) 
+            x = self.activations[f"{layer_name}_activate_func"](x)
+        return x
