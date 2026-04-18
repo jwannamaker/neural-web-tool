@@ -1,8 +1,16 @@
 """Flask web application for neural network visualization and training."""
 from flask import Flask, render_template, request, jsonify
+<<<<<<< HEAD
 
 app = Flask(__name__)
 current_network = None
+=======
+import numpy as np
+from neural_network import NeuralNetwork
+
+app = Flask(__name__)
+CURRENT_NETWORK = None
+>>>>>>> main
 
 
 @app.route("/")

@@ -1,3 +1,4 @@
+"""Example using scikit-learn's MLPClassifier for neural network classification."""
 from sklearn.neural_network import MLPClassifier
 
 # Format Data
