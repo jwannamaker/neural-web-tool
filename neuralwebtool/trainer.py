@@ -32,6 +32,5 @@ class Trainer:
         self.optimizer.zero_grad()              # Reset the gradients, by default they accumulate
         output = self.model(images)             # Forward Pass
         loss = self.criterion(output, labels)   # Calculate the accuracy of the model by comparing truth and predictions  
- 
         loss.backward()                         # Backprop, compute gradients
         self.optimizer.step()                   # Gradient descent, here we update the weights of model
