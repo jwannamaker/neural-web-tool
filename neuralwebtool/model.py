@@ -49,7 +49,7 @@ class Network(nn.Module):
             bias: Learnable bias of the module with shape (out_features) and initialized by uniform(-k,k) where k=1/sqrt(in_features)
         """
         super(Network, self).__init__()
-        self.layers = nn.ModuleDict()
+        self.layers = nn.ModuleDict()      # Alternatively use nn.ModuleList()
         self.activations = nn.ModuleDict()
 
         if len(config["activations"]) != len(layer_sizes) - 1:

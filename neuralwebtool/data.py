@@ -34,7 +34,8 @@ class Data:
                     0.308107,
                 ],
             ),
-            Lambda(lambda x: x.unsqueeze(0)),
+            # Explain why this needs to be squeezed in the first place, then analyze if needed
+            # Lambda(lambda x: x.unsqueeze(0)),
         ]
     )
     
