@@ -1,10 +1,16 @@
 """Flask web application for neural network visualization and training."""
 from flask import Flask, render_template, request, jsonify
+<<<<<<< HEAD
+
+app = Flask(__name__)
+current_network = None
+=======
 import numpy as np
 from neural_network import NeuralNetwork
 
 app = Flask(__name__)
 CURRENT_NETWORK = None
+>>>>>>> main
 
 
 @app.route("/")
@@ -36,35 +42,6 @@ def profile(username):
 def sandbox():
     """Render the sandbox page."""
     return "<p>This will be a sandbox<p>"
-
-
-@app.route("/learn")
-def learn():
-    """Render the learning page."""
-    return "<p>This will be the learning page<p>"
-
-
-@app.route("/api/create_network", methods=["POST"])
-def create_network():
-    """Create a new neural network with specified layer sizes."""
-    global CURRENT_NETWORK
-    data = request.get_json()
-    layer_sizes = data.get("layer_sizes")
-
-    CURRENT_NETWORK = NeuralNetwork(layer_sizes)
-
-    return jsonify({"message": "Network created successfully",
-                    "layer_sizes": layer_sizes})
-
-
-@app.route("/api/predict", methods=["POST"])
-def predict():
-    """Make predictions using the current neural network."""
-    if CURRENT_NETWORK is None:
-        return jsonify({"error": "No network created yet"}), 400
-    data = request.get_json()
-    output = CURRENT_NETWORK.forward(np.array(data.get("input")))
-    return jsonify({"output": output.tolist()})
 
 
 if __name__ == "__main__":

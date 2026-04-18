@@ -84,11 +84,19 @@ for ds_cnt, ds in enumerate(datasets):
     if ds_cnt == 0:
         ax.set_title("Input data")
     # Plot the training points
+<<<<<<< HEAD
+    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train,
+               cmap=cm_bright, edgecolors="k")
+    # Plot the testing points
+    ax.scatter(
+        X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright,
+=======
     ax.scatter(x_train[:, 0], x_train[:, 1], c=y_train,
                cmap=cm_bright, edgecolors="k")
     # Plot the testing points
     ax.scatter(
         x_test[:, 0], x_test[:, 1], c=y_test, cmap=cm_bright,
+>>>>>>> main
         alpha=0.6, edgecolors="k"
     )
     ax.set_xlim(x_min, x_max)
@@ -110,7 +118,11 @@ for ds_cnt, ds in enumerate(datasets):
 
         # Plot the training points
         ax.scatter(
+<<<<<<< HEAD
+            X_train[:, 0], X_train[:, 1], c=y_train,
+=======
             x_train[:, 0], x_train[:, 1], c=y_train,
+>>>>>>> main
             cmap=cm_bright, edgecolors="k"
         )
         # Plot the testing points
