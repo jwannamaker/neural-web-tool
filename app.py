@@ -1,6 +1,8 @@
 """Flask web application for neural network visualization and training."""
 from flask import Flask, render_template, request, jsonify
 
+app = Flask(__name__)
+
 
 @app.route("/")
 @app.route("/index")
