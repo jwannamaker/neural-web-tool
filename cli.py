@@ -55,4 +55,16 @@ def train(layers: str, activation: str, loss: str, optimizer: str, lr: float,
     #Create trainer with model config
     trainer: Trainer = Trainer(model, config)
     
- 
+    #Training loop
+    for epoch in range(epochs):
+        batch_count: int = 0
+        
+        with click.progressbar(train_loader, label=f'Epoch {epoch+1}/{epochs}') as bar:
+            for images, labels in bar:
+                #Flatten images for fully connected network
+                images = images.reshape(images.size(0), -1)
+                trainer.train_step(images, labels)
+                batch_count += 1
+        
+        click.echo(f"Epoch (Training cycle) {epoch+1} completed")
+    
