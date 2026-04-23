@@ -91,15 +91,31 @@ def evaluate(model_path: str, layers: str, batch_size: int) -> None:
         "activations": ["relu", "relu", "linear"],
     }
     
-    # Load model
+    #Load model
     model: Network = Network(layer_sizes=layer_sizes, config=config)
     model.load_state_dict(torch.load(model_path))
     model.eval()
     
-    # Load test data
+    #Load test data
     click.echo("Loading test dataset...")
     data: Data = Data()
     test_loader = data.get_dataloader(batch_size=batch_size, train=False)
+    #Evaluate
+    correct: int = 0
+    total: int = 0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images = images.reshape(images.size(0), -1)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
     
+    accuracy: float = 100 * correct / total
+    click.echo(f"Accuracy: {accuracy:.2f}%")
+
+
+
+
 
 
