@@ -114,7 +114,25 @@ def evaluate(model_path: str, layers: str, batch_size: int) -> None:
     accuracy: float = 100 * correct / total
     click.echo(f"Accuracy: {accuracy:.2f}%")
 
+@cli.command()
+@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes')
+def create_network(layers: str) -> None:
+    """Create and display a network architecture."""
+    layer_sizes: list[int] = list(map(int, layers.split(',')))
+    
+    config: dict = {
+        "loss": "cross_entropy",
+        "optimizer": "adam",
+        "lr": 0.001,
+        "activations": ["relu", "relu", "linear"],
+    }
+    
+    model: Network = Network(layer_sizes=layer_sizes, config=config)
+    click.echo("Network Architecture:")
+    click.echo(model)
 
+if __name__ == '__main__':
+    cli()
 
 
 
