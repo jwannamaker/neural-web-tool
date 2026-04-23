@@ -14,7 +14,7 @@ def cli() -> None:
     pass
 
 
-@cli.command(help='Train a neural network on MNIST using configurable layers, activations, optimizer and loss.')
+@cli.command(help='Train a neural network on MNIST using configurable layers, activations, optimizer and loss. Use --save-model to save the trained model weights to disk.')
 @click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes, including input and output. Example: 784,256,128,10')
 @click.option('--activation', default='relu,relu,linear', help='Comma-separated activation functions, one per layer transition. Supported: relu, sigmoid, tanh, linear')
 @click.option('--loss', default='cross_entropy', help='Loss function to train with. Supported: cross_entropy, mse_loss, nll_loss')
@@ -22,7 +22,7 @@ def cli() -> None:
 @click.option('--lr', default=0.001, type=float, help='Learning rate for training updates')
 @click.option('--epochs', default=5, type=int, help='Number of training epochs')
 @click.option('--batch-size', default=32, type=int, help='Batch size for training')
-@click.option('--save-model', default=None, help='Optional path to save trained model weights')
+@click.option('--save-model', default=None, help='Optional path to save trained model weights (e.g. model.pt). The model will be saved after training completes.')
 
 def train(layers: str, activation: str, loss: str, optimizer: str, lr: float, 
           epochs: int, batch_size: int, save_model: str | None) -> None:
