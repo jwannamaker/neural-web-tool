@@ -74,3 +74,8 @@ def train(layers: str, activation: str, loss: str, optimizer: str, lr: float,
         click.echo(f"Model saved to {save_model}")
     
     click.echo("Training complete!")
+
+cli.command()
+@click.option('--model-path', required=True, help='Path to saved model weights')
+@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes')
+@click.option('--batch-size', default=32, type=int, help='Batch size for evaluation')
