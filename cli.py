@@ -79,3 +79,27 @@ cli.command()
 @click.option('--model-path', required=True, help='Path to saved model weights')
 @click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes')
 @click.option('--batch-size', default=32, type=int, help='Batch size for evaluation')
+def evaluate(model_path: str, layers: str, batch_size: int) -> None:
+    """Evaluate a trained model on MNIST test dataset."""
+    click.echo(f"Loading model from {model_path}")
+    
+    layer_sizes: list[int] = list(map(int, layers.split(',')))
+    config: dict = {
+        "loss": "cross_entropy",
+        "optimizer": "adam",
+        "lr": 0.001,
+        "activations": ["relu", "relu", "linear"],
+    }
+    
+    # Load model
+    model: Network = Network(layer_sizes=layer_sizes, config=config)
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+    
+    # Load test data
+    click.echo("Loading test dataset...")
+    data: Data = Data()
+    test_loader = data.get_dataloader(batch_size=batch_size, train=False)
+    
+
+
