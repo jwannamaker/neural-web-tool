@@ -8,21 +8,21 @@ from neuralwebtool.trainer import Trainer
 from neuralwebtool.data import Data
 
 
-@click.group()
+@click.group(help='Neural Web Tool CLI. Use subcommands to create, train, or evaluate neural networks.')
 def cli() -> None:
     """Neural Web Tool - Train and test neural networks from the command line."""
     pass
 
 
-@cli.command()
-@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes')
-@click.option('--activation', default='relu,relu,linear', help='Comma-separated activation functions')
-@click.option('--loss', default='cross_entropy', help='Loss function: cross_entropy, mse_loss, nll_loss')
-@click.option('--optimizer', default='adam', help='Optimizer: adam, sgd')
-@click.option('--lr', default=0.001, type=float, help='Learning rate')
+@cli.command(help='Train a neural network on MNIST using configurable layers, activations, optimizer and loss.')
+@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes, including input and output. Example: 784,256,128,10')
+@click.option('--activation', default='relu,relu,linear', help='Comma-separated activation functions, one per layer transition. Supported: relu, sigmoid, tanh, linear')
+@click.option('--loss', default='cross_entropy', help='Loss function to train with. Supported: cross_entropy, mse_loss, nll_loss')
+@click.option('--optimizer', default='adam', help='Optimizer to use. Supported: adam, sgd')
+@click.option('--lr', default=0.001, type=float, help='Learning rate for training updates')
 @click.option('--epochs', default=5, type=int, help='Number of training epochs')
 @click.option('--batch-size', default=32, type=int, help='Batch size for training')
-@click.option('--save-model', default=None, help='Path to save trained model')
+@click.option('--save-model', default=None, help='Optional path to save trained model weights')
 
 def train(layers: str, activation: str, loss: str, optimizer: str, lr: float, 
           epochs: int, batch_size: int, save_model: str | None) -> None:
@@ -75,9 +75,9 @@ def train(layers: str, activation: str, loss: str, optimizer: str, lr: float,
     
     click.echo("Training complete!")
 
-cli.command()
-@click.option('--model-path', required=True, help='Path to saved model weights')
-@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes')
+@cli.command(help='Evaluate a saved model on the MNIST test dataset.')
+@click.option('--model-path', required=True, help='Path to saved model weights file')
+@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes matching the saved model architecture')
 @click.option('--batch-size', default=32, type=int, help='Batch size for evaluation')
 def evaluate(model_path: str, layers: str, batch_size: int) -> None:
     """Evaluate a trained model on MNIST test dataset."""
@@ -114,8 +114,8 @@ def evaluate(model_path: str, layers: str, batch_size: int) -> None:
     accuracy: float = 100 * correct / total
     click.echo(f"Accuracy: {accuracy:.2f}%")
 
-@cli.command()
-@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes')
+@cli.command(help='Create and display a network architecture without training.')
+@click.option('--layers', default='784,128,64,10', help='Comma-separated layer sizes, including input and output. Example: 784,256,128,10')
 def create_network(layers: str) -> None:
     """Create and display a network architecture."""
     layer_sizes: list[int] = list(map(int, layers.split(',')))
