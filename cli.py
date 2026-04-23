@@ -68,3 +68,9 @@ def train(layers: str, activation: str, loss: str, optimizer: str, lr: float,
         
         click.echo(f"Epoch (Training cycle) {epoch+1} completed")
     
+    # Save model if requested
+    if save_model:
+        torch.save(model.state_dict(), save_model)
+        click.echo(f"Model saved to {save_model}")
+    
+    click.echo("Training complete!")
