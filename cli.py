@@ -45,6 +45,14 @@ def train(layers: str, activation: str, loss: str, optimizer: str, lr: float,
         "activations": activations,
     }
     
-    # Create model - passes layer_sizes and config dict
+    #Create model: passes layer_sizes and config dict
     model: Network = Network(layer_sizes=layer_sizes, config=config)
+    #Load data
+    click.echo("Loading MNIST dataset...")
+    data: Data = Data()
+    train_loader = data.get_dataloader(batch_size=batch_size, train=True)
     
+    #Create trainer with model config
+    trainer: Trainer = Trainer(model, config)
+    
+ 
