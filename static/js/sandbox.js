@@ -15,6 +15,74 @@ document.addEventListener("DOMContentLoaded", () => {
     const clearBtn = document.getElementById("clear-btn");
     const predictionResults = document.getElementById("prediction-results");
     const predictionStatus = document.getElementById("prediction-status");
+    const errorDialog = document.getElementById("error-dialog");
+
+    // Classic Windows Sounds
+    const chordSound = new Audio("https://win98icons.alexmeub.com/sounds/chord.wav");
+
+    // Animation & Progress Bar Elements
+    const animArea = document.getElementById("animArea");
+    const progressBar = document.getElementById("progressBar");
+    const folderTemplate = document.getElementById("folderSvg").innerHTML;
+
+    // Create Progress Blocks
+    const numBlocks = 24;
+    for (let i = 0; i < numBlocks; i++) {
+        const block = document.createElement("div");
+        block.className = "progress-block";
+        progressBar.appendChild(block);
+    }
+    const blocks = progressBar.querySelectorAll(".progress-block");
+
+    function updateProgressBlocks(percent) {
+        const blocksToShow = Math.floor((percent / 100) * numBlocks);
+        blocks.forEach((block, index) => {
+            block.style.display = index < blocksToShow ? "block" : "none";
+        });
+    }
+
+    let animationInterval = null;
+
+    function spawnFolder() {
+        const folder = document.createElement("div");
+        folder.className = "flying-folder";
+        folder.innerHTML = folderTemplate;
+        
+        const yOffset = Math.random() * 20 - 10;
+        folder.style.top = `${25 + yOffset}px`;
+        folder.style.left = '40px';
+        
+        animArea.appendChild(folder);
+
+        // Force reflow
+        folder.getBoundingClientRect();
+
+        const animDuration = 2000 + Math.random() * 500;
+        folder.style.transition = `all ${animDuration}ms linear`;
+        folder.style.left = `${animArea.offsetWidth - 60}px`;
+        folder.style.top = `${25 + (Math.random() * 10 - 5)}px`;
+
+        setTimeout(() => {
+            if (folder.parentNode) {
+                folder.parentNode.removeChild(folder);
+            }
+        }, animDuration);
+    }
+
+    function startTrainingAnimation() {
+        if (animationInterval) clearInterval(animationInterval);
+        animationInterval = setInterval(spawnFolder, 4000);
+        updateProgressBlocks(0);
+        spawnFolder(); // Spawn one immediately
+    }
+
+    function stopTrainingAnimation() {
+        if (animationInterval) {
+            clearInterval(animationInterval);
+            animationInterval = null;
+        }
+        updateProgressBlocks(100);
+    }
 
     function setStatus(msg, loading = false) {
         statusMsg.textContent = msg;
@@ -112,7 +180,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // UI Updates
         trainBtn.disabled = true;
         evalBtn.disabled = true;
-        setStatus("Training in progress... This may take a few moments depending on the number of epochs.", true);
+        setStatus("Training in progress...", true);
+        startTrainingAnimation();
+
+        // Simulate progress for the block bar since training is sync on backend
+        let fakeProgress = 0;
+        const progressInterval = setInterval(() => {
+            if (fakeProgress < 98) {
+                fakeProgress += 2;
+                updateProgressBlocks(fakeProgress);
+            }
+        }, 150);
 
         try {
             const response = await fetch("/api/train", {
@@ -128,12 +206,14 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 setStatus(data.message);
                 evalBtn.disabled = false; // Enable evaluation
-                predictBtn.disabled = false; // Enable prediction
             }
         } catch (err) {
             setError(err.message);
         } finally {
             trainBtn.disabled = false;
+            stopTrainingAnimation();
+            clearInterval(progressInterval);
+            updateProgressBlocks(100);
         }
     });
 
@@ -194,7 +274,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (!response.ok) {
-                predictionStatus.textContent = "Error: " + (data.error || "Prediction failed.");
+                if (data.error && data.error.includes("No network")) {
+                    chordSound.play();
+                    errorDialog.style.display = "block";
+                    predictionStatus.textContent = "Error: System not initialized.";
+                } else {
+                    predictionStatus.textContent = "Error: " + (data.error || "Prediction failed.");
+                }
             } else {
                 predictionStatus.style.display = "none";
                 predictionResults.innerHTML = "";

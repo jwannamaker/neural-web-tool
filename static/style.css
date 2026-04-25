@@ -1,3 +1,19 @@
+@font-face {
+    font-family: "MS Sans Serif";
+    src: url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif.woff2") format("woff2"),
+         url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "MS Sans Serif";
+    src: url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif_bold.woff2") format("woff2"),
+         url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif_bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+}
+
 :root {
     --win-bg: #c0c0c0;
     --win-teal: #008080;
@@ -12,9 +28,10 @@ body {
     background-color: var(--win-teal);
     margin: 0;
     padding: 0;
-    font-family: 'Tahoma', 'Verdana', sans-serif;
+    font-family: "MS Sans Serif", "Tahoma", sans-serif;
     color: #000;
     font-size: 13px;
+    -webkit-font-smoothing: none; /* Helps keep the pixelated look */
 }
 
 /* Classic Window Style */
