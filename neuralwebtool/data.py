@@ -83,5 +83,3 @@ if __name__ == "__main__":
         plt.axis("off")
         plt.imshow(img.squeeze(), cmap="gray")
     plt.show()
-
-

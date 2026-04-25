@@ -55,7 +55,6 @@ def create_network():
 
 @app.route("/api/predict", methods=["POST"])
 def predict():
-    global current_network
     if current_network is None:
         return jsonify({"error": "No network created yet"}), 400
     data = request.get_json()
