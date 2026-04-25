@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .terminal-window {
+        background: #000;
+        color: #fff;
+        font-family: 'Courier New', Courier, monospace;
+        padding: 10px;
+        height: calc(100vh - 120px);
+        overflow-y: scroll;
+        border: 2px solid;
+        border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+    }
+
+    .terminal-line {
+        margin: 2px 0;
+        word-wrap: break-word;
+    }
+
+    .terminal-info {
+        color: #cccccc;
+    }
+
+    .terminal-debug {
+        color: #888888;
+    }
+
+    .terminal-success {
+        color: #00ff00;
+        font-weight: bold;
+    }
+
+    .terminal-error {
+        color: #ff0000;
+        font-weight: bold;
+    }
+
+    .terminal-header {
+        color: #ffff00;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border-bottom: 1px dashed #ffff00;
+        padding-bottom: 5px;
+    }
+
+    .toolbar-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+</style>
+
+<div class="window" style="width: 100%; height: 100%;">
+    <div class="window-title">
+        <span><img src="https://win98icons.alexmeub.com/icons/png/xml-2.png" width="16" height="16"
+                style="vertical-align: middle; margin-right: 5px;"> Command Prompt - Training Logs</span>
+
+    </div>
+
+    <!-- Toolbar -->
+    <div
+        style="background: var(--win-bg); padding: 5px; display: flex; gap: 5px; border-bottom: 1px solid var(--win-border-dark);">
+        <button class="btn-win toolbar-btn" id="refresh-logs-btn">
+            <img src="https://win98icons.alexmeub.com/icons/png/update-1.png" width="16" height="16"> Refresh
+        </button>
+        <button class="btn-win toolbar-btn" onclick="document.getElementById('terminal-content').innerHTML = ''">
+            <img src="https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-3.png" width="16" height="16"> Clear
+        </button>
+    </div>
+
+    <div class="window-content">
+        <div class="terminal-window" id="terminal-window">
+            <div class="terminal-header">
+                Neural Web Tool - Event Viewer v1.0<br>
+                (C) Copyright Microsoft Corp 1981-1998.<br>
+                Listening for PyTorch training events...
+            </div>
+            <div id="terminal-content">
+                <!-- Logs will be injected here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+{% endblock %}

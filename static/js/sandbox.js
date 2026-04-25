@@ -5,9 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const statusArea = document.getElementById("status-area");
     const statusMsg = document.getElementById("status-msg");
-    const spinner = document.getElementById("loading-spinner");
     const accuracyResult = document.getElementById("accuracy-result");
-    const classMetrics = document.getElementById("class-metrics");
+    const classMetricsTable = document.getElementById("class-metrics");
+    const metricsBody = document.getElementById("metrics-body");
 
     const canvas = document.getElementById("drawing-canvas");
     const ctx = canvas.getContext("2d");
@@ -16,11 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const predictionResults = document.getElementById("prediction-results");
     const predictionStatus = document.getElementById("prediction-status");
     const errorDialog = document.getElementById("error-dialog");
+    const historyBody = document.getElementById("history-body");
+    const clearHistoryBtn = document.getElementById("clear-history-btn");
+
+    let predictionHistory = [];
 
     // Animation & Progress Bar Elements
     const animArea = document.getElementById("animArea");
     const progressBar = document.getElementById("progressBar");
-    const folderTemplate = document.getElementById("folderSvg").innerHTML;
+    const folderTemplate = document.getElementById("fileIcon").innerHTML;
 
     // Create Progress Blocks
     const numBlocks = 24;
@@ -44,11 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const folder = document.createElement("div");
         folder.className = "flying-folder";
         folder.innerHTML = folderTemplate;
-        
+
         const yOffset = Math.random() * 20 - 10;
         folder.style.top = `${25 + yOffset}px`;
         folder.style.left = '40px';
-        
+
         animArea.appendChild(folder);
 
         // Force reflow
@@ -85,19 +89,15 @@ document.addEventListener("DOMContentLoaded", () => {
         statusMsg.textContent = msg;
         statusMsg.style.color = "#334155";
         if (loading) {
-            spinner.style.display = "block";
             accuracyResult.style.display = "none";
-        } else {
-            spinner.style.display = "none";
         }
     }
 
     function setError(msg) {
         statusMsg.textContent = "Error: " + msg;
         statusMsg.style.color = "#ef4444";
-        spinner.style.display = "none";
         accuracyResult.style.display = "none";
-        classMetrics.style.display = "none";
+        classMetricsTable.style.display = "none";
     }
 
     // Canvas Logic
@@ -183,11 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Simulate progress for the block bar since training is sync on backend
         let fakeProgress = 0;
         const progressInterval = setInterval(() => {
-            if (fakeProgress < 98) {
-                fakeProgress += 2;
-                updateProgressBlocks(fakeProgress);
-            }
-        }, 150);
+            // Asymptotic progress: distance to 99% gets smaller over time
+            const remaining = 99 - fakeProgress;
+            fakeProgress += (remaining * 0.05) + (Math.random() * 0.5);
+            if (fakeProgress > 99) fakeProgress = 99;
+            updateProgressBlocks(fakeProgress);
+        }, 500);
 
         try {
             const response = await fetch("/api/train", {
@@ -237,14 +238,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 accuracyResult.textContent = data.accuracy.toFixed(2) + "%";
                 accuracyResult.style.display = "block";
 
-                // Render per-class metrics
-                classMetrics.innerHTML = "";
-                classMetrics.style.display = "grid";
+                // Render per-class metrics table
+                metricsBody.innerHTML = "";
+                classMetricsTable.style.display = "table";
                 Object.entries(data.class_accuracies).forEach(([digit, acc]) => {
-                    const item = document.createElement("div");
-                    item.className = "class-metric-item";
-                    item.innerHTML = `<span class="class-metric-digit">${digit}</span> ${acc.toFixed(0)}%`;
-                    classMetrics.appendChild(item);
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><strong>Digit ${digit}</strong></td>
+                        <td>${acc.toFixed(1)}%</td>
+                    `;
+                    metricsBody.appendChild(row);
                 });
             }
         } catch (err) {
@@ -258,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
     predictBtn.addEventListener("click", async () => {
         predictionStatus.textContent = "Analyzing...";
         predictionResults.style.display = "none";
-        
+
         const imageData = canvas.toDataURL("image/png");
 
         try {
@@ -295,9 +298,60 @@ document.addEventListener("DOMContentLoaded", () => {
                     `;
                     predictionResults.appendChild(item);
                 });
+
+                // Add to History
+                const topPrediction = data.predictions[0];
+                addToHistory(imageData, topPrediction.digit, (topPrediction.confidence * 100).toFixed(1));
             }
         } catch (err) {
             predictionStatus.textContent = "Error: " + err.message;
         }
+    });
+
+    function addToHistory(imageSrc, digit, confidence) {
+        const id = Date.now();
+        const entry = { id, imageSrc, digit, confidence, feedback: null };
+        predictionHistory.unshift(entry); // Add to start
+        renderHistory();
+    }
+
+    function renderHistory() {
+        historyBody.innerHTML = "";
+        predictionHistory.forEach(entry => {
+            const row = document.createElement("tr");
+
+            let feedbackHtml = "";
+            if (entry.feedback === "correct") {
+                feedbackHtml = '<span class="feedback-correct">✓ Right</span>';
+            } else if (entry.feedback === "wrong") {
+                feedbackHtml = '<span class="feedback-wrong">✗ Wrong</span>';
+            } else {
+                feedbackHtml = `
+                    <button class="btn-win feedback-btn" onclick="provideFeedback(${entry.id}, 'correct')">Right</button>
+                    <button class="btn-win feedback-btn" onclick="provideFeedback(${entry.id}, 'wrong')">Wrong</button>
+                `;
+            }
+
+            row.innerHTML = `
+                <td><img src="${entry.imageSrc}" class="history-thumbnail"></td>
+                <td><strong>Digit ${entry.digit}</strong></td>
+                <td>${entry.confidence}%</td>
+                <td>${feedbackHtml}</td>
+            `;
+            historyBody.appendChild(row);
+        });
+    }
+
+    window.provideFeedback = (id, type) => {
+        const entry = predictionHistory.find(e => e.id === id);
+        if (entry) {
+            entry.feedback = type;
+            renderHistory();
+        }
+    };
+
+    clearHistoryBtn.addEventListener("click", () => {
+        predictionHistory = [];
+        renderHistory();
     });
 });

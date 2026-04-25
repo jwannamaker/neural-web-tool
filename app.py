@@ -7,6 +7,8 @@ import io
 from PIL import Image
 import numpy as np
 import torch
+import time
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify, Response
 
 from neuralwebtool.model import Network as NeuralNetwork
@@ -15,6 +17,18 @@ from neuralwebtool.data import Data
 
 app: Flask = Flask(__name__)
 current_network: Optional[NeuralNetwork] = None
+training_logs: List[Dict[str, str]] = []
+
+def add_log(msg: str, level: str = "INFO"):
+    timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+    training_logs.append({
+        "timestamp": timestamp,
+        "level": level,
+        "message": msg
+    })
+    # Keep only last 500 logs to prevent memory bloat
+    if len(training_logs) > 500:
+        training_logs.pop(0)
 
 
 @app.route("/")
@@ -46,6 +60,24 @@ def profile(username: str) -> str:
 def sandbox() -> str:
     """Render the sandbox page."""
     return render_template("sandbox.html")
+
+
+@app.route("/help")
+def help_page() -> str:
+    """Render the Help Topics page."""
+    return render_template("help.html")
+
+
+@app.route("/logs")
+def logs_page() -> str:
+    """Render the Training Logs page."""
+    return render_template("logs.html")
+
+
+@app.route("/api/logs_data")
+def logs_data() -> Union[Response, Tuple[Response, int]]:
+    """Return the current training logs."""
+    return jsonify({"logs": training_logs})
 
 
 @app.route("/learn")
@@ -129,11 +161,28 @@ def train() -> Union[Response, Tuple[Response, int]]:
     train_loader: Any = data_handler.get_dataloader(batch_size=batch_size, train=True)
     trainer: Trainer = Trainer(current_network, config)
     
+    global training_logs
+    training_logs.clear()
+    add_log(f"Initializing Neural Network with architecture: {layer_sizes}")
+    add_log(f"Config: Loss={loss}, Optimizer={optimizer}, LR={lr}")
+    add_log(f"Loading MNIST dataset (Batch Size: {batch_size})...")
+    
     # Simple synchronous training loop for the sandbox
     for epoch in range(epochs):
+        add_log(f"--- Starting Epoch {epoch+1}/{epochs} ---", "INFO")
+        batch_idx = 0
         for images, labels in train_loader:
             images = images.reshape(images.size(0), -1)
             trainer.train_step(images, labels)
+            
+            # Log every 100 batches to avoid flooding
+            if batch_idx % 100 == 0:
+                add_log(f"Epoch {epoch+1} | Processed batch {batch_idx}...", "DEBUG")
+            batch_idx += 1
+            
+        add_log(f"Epoch {epoch+1} Complete.", "SUCCESS")
+        
+    add_log(f"Training successfully completed for {epochs} epochs.", "SUCCESS")
             
     return jsonify({"message": f"Training complete for {epochs} epochs!"})
 

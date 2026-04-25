@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .help-container {
+        display: flex;
+        height: calc(100vh - 100px);
+        gap: 10px;
+    }
+
+    .help-sidebar {
+        width: 250px;
+        background: #fff;
+        border: 2px solid;
+        border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .help-tabs {
+        display: flex;
+        background: var(--win-bg);
+        padding-top: 5px;
+    }
+
+    .help-tab {
+        padding: 4px 10px;
+        border: 1px solid var(--win-border-light);
+        border-bottom: none;
+        border-right: 1px solid var(--win-border-dark);
+        background: var(--win-bg);
+        margin-left: 2px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        cursor: pointer;
+    }
+
+    .help-tab.active {
+        background: #fff;
+        margin-top: -2px;
+        padding-top: 6px;
+        font-weight: bold;
+    }
+
+    .help-content {
+        flex: 1;
+        background: #ffffe1;
+        /* Classic Pale Yellow Help Background */
+        border: 2px solid;
+        border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        padding: 20px;
+        overflow-y: scroll;
+    }
+
+    .help-nav-list {
+        list-style: none;
+        padding: 10px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .help-nav-list li {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 0;
+        cursor: pointer;
+    }
+
+    .help-nav-list li:hover {
+        background: var(--win-blue-start);
+        color: white;
+    }
+
+    h2 {
+        color: var(--win-blue-start);
+        border-bottom: 1px solid var(--win-border-dark);
+        padding-bottom: 5px;
+    }
+</style>
+
+<div class="window" style="width: 100%; height: 100%;">
+    <div class="window-title">
+        <span><img src="https://win98icons.alexmeub.com/icons/png/help_book_big-0.png" width="16" height="16"
+                style="vertical-align: middle; margin-right: 5px;">Documentation</span>
+
+    </div>
+
+
+
+    <div class="window-content help-container">
+        <!-- Sidebar -->
+        <div class="help-sidebar">
+            <div class="help-tabs">
+                <div class="help-tab active">Contents</div>
+
+            </div>
+            <ul class="help-nav-list">
+                <li onclick="showHelpSection('content-intro')"><img
+                        src="https://win98icons.alexmeub.com/icons/png/directory_closed-1.png" width="16" height="16">
+                    Introduction to Neural Networks</li>
+                <li onclick="showHelpSection('content-params')"><img
+                        src="https://win98icons.alexmeub.com/icons/png/directory_closed-1.png" width="16" height="16">
+                    Sandbox
+                    Parameters
+                    <ul style="list-style: none; padding-left: 20px; margin-top: 5px;">
+                        <li><img src="https://win98icons.alexmeub.com/icons/png/file_lines-0.png" width="16"
+                                height="16"> Layer Sizes</li>
+                        <li><img src="https://win98icons.alexmeub.com/icons/png/file_lines-0.png" width="16"
+                                height="16"> Activations</li>
+                        <li><img src="https://win98icons.alexmeub.com/icons/png/file_lines-0.png" width="16"
+                                height="16"> Loss Functions</li>
+                        <li><img src="https://win98icons.alexmeub.com/icons/png/file_lines-0.png" width="16"
+                                height="16"> Optimizers</li>
+                        <li><img src="https://win98icons.alexmeub.com/icons/png/file_lines-0.png" width="16"
+                                height="16"> Learning Rate & Epochs</li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Content -->
+        <div class="help-content">
+            <div id="content-intro" style="display: none;">
+                <h2>Introduction to Neural Networks</h2>
+                <p>A neural network is a series of algorithms that endeavors to recognize underlying relationships in a
+                    set of data through a process that mimics the way the human brain operates.</p>
+                <p>In this application, you are training a neural network to recognize handwritten digits (0-9). The
+                    network takes the pixels of your drawing as input, passes them through hidden layers of neurons, and
+                    outputs a probability for each possible digit.</p>
+                <p>By tweaking the sandbox parameters, you can experiment with how different architectures and settings
+                    affect the network's learning speed and accuracy. Click on <b>Sandbox Parameters</b> in the sidebar
+                    to learn more about each setting.</p>
+            </div>
+
+            <div id="content-params" style="display: block;">
+                <h2>Neural Network Sandbox Parameters</h2>
+                <p>Welcome to the Neural Network Sandbox Help System. This guide will explain the various parameters you
+                    can
+                    tweak to train your digit-recognizing model.</p>
+
+                <h3>Layer Sizes</h3>
+                <p>A neural network is made of layers of "neurons". The <b>Layer Sizes</b> parameter defines how many
+                    neurons are in each layer.</p>
+                <ul>
+                    <li><b>784</b>: The input layer. Since the drawing pad is 28x28 pixels, there are 784 total pixels
+                        (28 *
+                        28 = 784).</li>
+                    <li><b>Hidden Layers</b>: The middle numbers (e.g., 128, 64) are the hidden layers where the model
+                        learns complex patterns.</li>
+                    <li><b>10</b>: The output layer. There are 10 possible digits (0-9).</li>
+                </ul>
+
+                <h3>Activations</h3>
+                <p>Activation functions decide whether a neuron should "fire" or not, allowing the network to learn
+                    non-linear patterns.</p>
+                <ul>
+                    <li><b>relu</b>: Rectified Linear Unit. The standard default. It outputs the input directly if it is
+                        positive, otherwise, it outputs zero.</li>
+                    <li><b>sigmoid</b>: Squeezes values between 0 and 1. Good for probabilities but can suffer from
+                        vanishing gradients in deep networks.</li>
+                    <li><b>tanh</b>: Squeezes values between -1 and 1.</li>
+                    <li><b>linear</b>: No activation. Often used on the final output layer before a loss function is
+                        applied.</li>
+                </ul>
+
+                <h3>Loss & Optimizers</h3>
+                <p>The <b>Loss Function</b> (e.g., cross_entropy) calculates how "wrong" the model's predictions are.
+                    The
+                    <b>Optimizer</b> (e.g., adam, sgd) is the algorithm that adjusts the model's weights to minimize
+                    that
+                    loss.
+                </p>
+
+                <h3>Learning Rate (LR)</h3>
+                <p>The learning rate determines how big of a step the optimizer takes when adjusting weights. If it's
+                    too
+                    high, the model might overshoot the optimal solution. If it's too low, training will be very slow.
+                </p>
+
+                <h3>Epochs & Batch Size</h3>
+                <p>An <b>Epoch</b> is one complete pass through the entire training dataset. The <b>Batch Size</b> is
+                    how
+                    many images the model looks at before updating its weights.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showHelpSection(id) {
+        document.getElementById('content-intro').style.display = 'none';
+        document.getElementById('content-params').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+    }
+
+    // Show intro by default
+    showHelpSection('content-intro');
+</script>
+{% endblock %}

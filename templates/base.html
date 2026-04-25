@@ -11,13 +11,45 @@
 </head>
 
 <body>
-    <nav>
-        {% for href, name in [(url_for('index'), 'Home'),
-        (url_for('about'), 'About'),
-        (url_for('network'), 'Network Visualizer'),
-        (url_for('sandbox'), 'Neural Network Sandbox')] %}
-        <a href="{{ href }}">{{ name }}</a> |
-        {% endfor %}
+    <nav
+        style="display: flex; gap: 2px; padding: 2px; background: var(--win-bg); border-bottom: 2px solid var(--win-border-dark);">
+        <a href="{{ url_for('index') }}"
+            style="display: flex; align-items: center; gap: 5px; padding: 4px 8px; text-decoration: none; color: black; border: 1px solid transparent;"
+            class="{% if request.endpoint == 'index' %}active{% endif %}">
+            <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" alt="Home" width="16"
+                height="16"> Home
+        </a>
+        <a href="{{ url_for('sandbox') }}"
+            style="display: flex; align-items: center; gap: 5px; padding: 4px 8px; text-decoration: none; color: black; border: 1px solid transparent;"
+            class="{% if request.endpoint == 'sandbox' %}active{% endif %}">
+            <img src="https://win98icons.alexmeub.com/icons/png/expansion_board-0.png" alt="Sandbox" width="16"
+                height="16">
+            Sandbox
+        </a>
+        <a href="{{ url_for('network') }}"
+            style="display: flex; align-items: center; gap: 5px; padding: 4px 8px; text-decoration: none; color: black; border: 1px solid transparent;"
+            class="{% if request.endpoint == 'network' %}active{% endif %}">
+            <img src="https://win98icons.alexmeub.com/icons/png/spider-0.png" alt="Visualizer" width="16" height="16">
+            Visualizer
+        </a>
+        <a href="{{ url_for('logs_page') }}"
+            style="display: flex; align-items: center; gap: 5px; padding: 4px 8px; text-decoration: none; color: black; border: 1px solid transparent;"
+            class="{% if request.endpoint == 'logs_page' %}active{% endif %}">
+            <img src="https://win98icons.alexmeub.com/icons/png/xml-2.png" alt="Logs" width="16" height="16"> Logs
+        </a>
+        <a href="{{ url_for('help_page') }}"
+            style="display: flex; align-items: center; gap: 5px; padding: 4px 8px; text-decoration: none; color: black; border: 1px solid transparent;"
+            class="{% if request.endpoint == 'help_page' %}active{% endif %}">
+            <img src="https://win98icons.alexmeub.com/icons/png/help_book_small-0.png" alt="Help" width="16"
+                height="16"> Help
+        </a>
+        <a href="{{ url_for('about') }}"
+            style="display: flex; align-items: center; gap: 5px; padding: 4px 8px; text-decoration: none; color: black; border: 1px solid transparent;"
+            class="{% if request.endpoint == 'about' %}active{% endif %}">
+            <img src="https://win98icons.alexmeub.com/icons/png/msg_information-2.png" alt="About" width="16"
+                height="16">
+            About
+        </a>
     </nav>
 
     <hr />
