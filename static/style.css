@@ -1,0 +1,109 @@
+:root {
+    --win-bg: #c0c0c0;
+    --win-teal: #008080;
+    --win-blue-start: #000080;
+    --win-blue-end: #1084d0;
+    --win-border-light: #ffffff;
+    --win-border-dark: #808080;
+    --win-border-darker: #000000;
+}
+
+body {
+    background-color: var(--win-teal);
+    margin: 0;
+    padding: 0;
+    font-family: 'Tahoma', 'Verdana', sans-serif;
+    color: #000;
+    font-size: 13px;
+}
+
+/* Classic Window Style */
+.window {
+    background-color: var(--win-bg);
+    border: 2px solid;
+    border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+    box-shadow: inset 1px 1px var(--win-border-light), inset -1px -1px var(--win-border-dark);
+    padding: 2px;
+    margin-bottom: 20px;
+}
+
+.window-title {
+    background: linear-gradient(90deg, var(--win-blue-start), var(--win-blue-end));
+    color: white;
+    padding: 3px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.window-content {
+    padding: 15px;
+}
+
+/* Classic Button Style */
+.btn-win {
+    background-color: var(--win-bg);
+    border: 2px solid;
+    border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+    box-shadow: inset 1px 1px var(--win-border-light), inset -1px -1px var(--win-border-dark);
+    padding: 4px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    display: inline-block;
+    text-align: center;
+    min-width: 75px;
+}
+
+.btn-win:active {
+    border-color: var(--win-border-darker) var(--win-border-light) var(--win-border-light) var(--win-border-darker);
+    box-shadow: inset 1px 1px var(--win-border-dark), inset -1px -1px var(--win-border-light);
+    padding: 5px 11px 3px 13px; /* Shift text slightly */
+}
+
+.btn-win:disabled {
+    color: var(--win-border-dark);
+    text-shadow: 1px 1px var(--win-border-light);
+    cursor: not-allowed;
+}
+
+/* Classic Form Controls */
+.input-win {
+    border: 2px solid;
+    border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+    padding: 4px;
+    background-color: #fff;
+    outline: none;
+    font-size: 13px;
+}
+
+.select-win {
+    border: 2px solid;
+    border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+    background-color: #fff;
+    padding: 3px;
+    font-size: 13px;
+}
+
+/* Taskbar Style Nav */
+nav {
+    background-color: var(--win-bg);
+    border-bottom: 2px solid var(--win-border-dark);
+    padding: 5px 10px;
+    display: flex;
+    gap: 10px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #000;
+    padding: 2px 8px;
+}
+
+nav a:hover {
+    background-color: #000080;
+    color: #fff;
+}

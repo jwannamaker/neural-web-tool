@@ -1,5 +1,5 @@
 async function createNetwork() {
-    const response = await fetch('/create_network', {
+    const response = await fetch('/api/create_network', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({

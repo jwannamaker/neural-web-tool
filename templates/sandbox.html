@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Neural Network Sandbox - Windows 98 Edition{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .sandbox-container {
+        max-width: 1000px;
+        margin: 20px auto;
+    }
+
+    .sandbox-header {
+        text-align: center;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .sandbox-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+        text-shadow: 2px 2px #000;
+    }
+
+    .grid-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .title-buttons button {
+        width: 16px;
+        height: 14px;
+        font-size: 9px;
+        padding: 0;
+        margin-left: 2px;
+        line-height: 12px;
+        font-weight: bold;
+        background: var(--win-bg);
+        border: 1px solid;
+        border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: bold;
+    }
+
+    .status-area {
+        margin-top: 10px;
+        padding: 15px;
+        background: #fff;
+        border: 2px solid;
+        border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .spinner {
+        width: 32px;
+        height: 32px;
+        border: 4px solid var(--win-bg);
+        border-top-color: var(--win-blue-start);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+        display: none;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .result-highlight {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #000080;
+        margin-top: 10px;
+    }
+
+    .class-metrics {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        margin-top: 15px;
+        width: 100%;
+        display: none;
+    }
+
+    .class-metric-item {
+        background: var(--win-bg);
+        padding: 4px;
+        border: 1px solid;
+        border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #drawing-canvas {
+        background: #000;
+        border: 3px solid;
+        border-color: var(--win-border-darker) var(--win-border-light) var(--win-border-light) var(--win-border-darker);
+        cursor: crosshair;
+    }
+
+    .prediction-results {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .prediction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 10px;
+        background: var(--win-bg);
+        border: 1px solid;
+        border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+        margin-bottom: 5px;
+    }
+
+    /* Win98 Progress Bar */
+    .prediction-bar-container {
+        flex-grow: 1;
+        height: 18px;
+        background: #fff;
+        border: 1px solid;
+        border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        margin: 0 10px;
+        position: relative;
+    }
+
+    .prediction-bar {
+        height: 100%;
+        background-color: var(--win-blue-start);
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    .prediction-digit {
+        font-weight: bold;
+        min-width: 15px;
+    }
+
+    .prediction-conf {
+        font-size: 11px;
+        min-width: 35px;
+        text-align: right;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sandbox-container">
+    <div class="sandbox-header">
+        <h1>Neural Network Sandbox</h1>
+        <p>Windows 98 Visual System v1.0</p>
+    </div>
+
+    <div class="grid-layout">
+        <!-- Architecture Window -->
+        <div class="window">
+            <div class="window-title">
+                <span>🧠 Architecture & Config</span>
+                <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+            </div>
+            <div class="window-content">
+                <form id="train-form">
+                    <div class="form-group">
+                        <label>Layer Sizes:</label>
+                        <input type="text" id="layers" class="input-win" style="width: 100%;" value="784, 128, 64, 10">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Activations:</label>
+                        <input type="text" id="activations" class="input-win" style="width: 100%;" value="relu, relu, linear">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Loss Function:</label>
+                        <select id="loss" class="select-win" style="width: 100%;">
+                            <option value="cross_entropy">Cross Entropy</option>
+                            <option value="mse_loss">Mean Squared Error</option>
+                            <option value="nll_loss">Negative Log Likelihood</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Optimizer:</label>
+                        <select id="optimizer" class="select-win" style="width: 100%;">
+                            <option value="adam">Adam</option>
+                            <option value="sgd">SGD</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <label>LR:</label>
+                            <input type="number" id="lr" class="input-win" style="width: 100%;" value="0.001" step="0.001">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Epochs:</label>
+                            <input type="number" id="epochs" class="input-win" style="width: 100%;" value="1" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Batch Size:</label>
+                        <input type="number" id="batch_size" class="input-win" style="width: 100%;" value="64" min="1">
+                    </div>
+
+                    <button type="submit" class="btn-win" id="train-btn" style="width: 100%; font-weight: bold;">Start Training</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Evaluation Window -->
+        <div class="window">
+            <div class="window-title">
+                <span>📊 Status & Evaluation</span>
+                <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+            </div>
+            <div class="window-content">
+                <div class="status-area" id="status-area">
+                    <div class="spinner" id="loading-spinner"></div>
+                    <div id="status-msg">System Idle. Please configure and start training.</div>
+                    <div class="result-highlight" id="accuracy-result" style="display: none;"></div>
+                    
+                    <div class="class-metrics" id="class-metrics">
+                        <!-- Metrics for 0-9 will be injected here -->
+                    </div>
+                </div>
+
+                <button class="btn-win" id="eval-btn" disabled style="width: 100%; margin-top: 15px;">Evaluate Model</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Testing Row -->
+    <div class="grid-layout" style="margin-top: 20px;">
+        <!-- Drawing Window -->
+        <div class="window">
+            <div class="window-title">
+                <span>✍️ Draw Digit</span>
+                <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+            </div>
+            <div class="window-content">
+                <p style="margin-bottom: 10px; font-size: 11px;">Draw a digit (0-9) to test the trained model.</p>
+                <div class="canvas-container">
+                    <canvas id="drawing-canvas" width="280" height="280"></canvas>
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <button class="btn-win" id="predict-btn" disabled style="flex: 2; font-weight: bold;">Predict</button>
+                        <button class="btn-win" id="clear-btn" style="flex: 1;">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Window -->
+        <div class="window">
+            <div class="window-title">
+                <span>🔮 Prediction Results</span>
+                <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+            </div>
+            <div class="window-content">
+                <div id="prediction-status" style="text-align: center; margin-top: 40px; color: #444;">
+                    Waiting for input...
+                </div>
+                <div class="prediction-results" id="prediction-results" style="display: none;">
+                    <!-- Prediction items will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/sandbox.js') }}"></script>
+{% endblock %}
