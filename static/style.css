@@ -126,3 +126,10 @@ nav a:hover {
     background-color: #000080;
     color: #fff;
 }
+
+/* Smooth fonts for large headings */
+h1, h2, h3 {
+    font-family: "Tahoma", "Verdana", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

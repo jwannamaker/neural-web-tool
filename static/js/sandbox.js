@@ -17,9 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const predictionStatus = document.getElementById("prediction-status");
     const errorDialog = document.getElementById("error-dialog");
 
-    // Classic Windows Sounds
-    const chordSound = new Audio("https://win98icons.alexmeub.com/sounds/chord.wav");
-
     // Animation & Progress Bar Elements
     const animArea = document.getElementById("animArea");
     const progressBar = document.getElementById("progressBar");
@@ -275,7 +272,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!response.ok) {
                 if (data.error && data.error.includes("No network")) {
-                    chordSound.play();
                     errorDialog.style.display = "block";
                     predictionStatus.textContent = "Error: System not initialized.";
                 } else {
