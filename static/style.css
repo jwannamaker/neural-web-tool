@@ -1,7 +1,7 @@
 @font-face {
     font-family: "MS Sans Serif";
     src: url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif.woff2") format("woff2"),
-         url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif.woff") format("woff");
+        url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif.woff") format("woff");
     font-weight: 400;
     font-style: normal;
 }
@@ -9,7 +9,7 @@
 @font-face {
     font-family: "MS Sans Serif";
     src: url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif_bold.woff2") format("woff2"),
-         url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif_bold.woff") format("woff");
+        url("https://unpkg.com/98.css@0.1.16/dist/ms_sans_serif_bold.woff") format("woff");
     font-weight: 700;
     font-style: normal;
 }
@@ -28,10 +28,11 @@ body {
     background-color: var(--win-teal);
     margin: 0;
     padding: 0;
-    font-family: "MS Sans Serif", "Tahoma", sans-serif;
+    font-family: "MS Sans Serif", "MS Sans Serif Bold", "MS Sans Serif";
     color: #000;
     font-size: 13px;
-    -webkit-font-smoothing: none; /* Helps keep the pixelated look */
+    -webkit-font-smoothing: none;
+    /* Helps keep the pixelated look */
 }
 
 /* Classic Window Style */
@@ -78,7 +79,8 @@ body {
 .btn-win:active {
     border-color: var(--win-border-darker) var(--win-border-light) var(--win-border-light) var(--win-border-darker);
     box-shadow: inset 1px 1px var(--win-border-dark), inset -1px -1px var(--win-border-light);
-    padding: 5px 11px 3px 13px; /* Shift text slightly */
+    padding: 5px 11px 3px 13px;
+    /* Shift text slightly */
 }
 
 .btn-win:disabled {
