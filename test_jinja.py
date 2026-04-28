@@ -1,24 +1,27 @@
-from flask import Flask, render_template, url_for
-import sys
-import os
+from flask import Flask, render_template
 
 app = Flask(__name__, template_folder='templates')
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/index")
 def index_alias():
     return render_template("index.html")
+
 
 @app.route("/about")
 def about():
     return "about"
 
+
 @app.route("/network")
 def network():
     return render_template("network.html")
+
 
 with app.test_request_context():
     try:

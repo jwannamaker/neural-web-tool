@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 
 def sigmoid(x):
@@ -26,7 +25,8 @@ class Network(object):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+        self.weights = [np.random.randn(y, x)
+                        for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feed_forward(self, a):
         """Returns output if 'a' is input."""
@@ -52,7 +52,7 @@ class Network(object):
         for j in range(epochs):
             shuffle(training_data)
             mini_batches = [
-                training_data[k : k + mini_batch_size]
+                training_data[k: k + mini_batch_size]
                 for k in range(0, n, mini_batch_size)
             ]
 
@@ -96,7 +96,8 @@ class Network(object):
             activations.append(a)
 
         # backward pass
-        delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(z_list[-1])
+        delta = self.cost_derivative(
+            activations[-1], y) * sigmoid_prime(z_list[-1])
         grad_b[-1] = delta
         grad_w[-1] = np.dot(delta, activations[-2].transpose())
 
@@ -110,7 +111,8 @@ class Network(object):
 
     def evaluate(self, test_data):
         """Return number of test inputs the network outputs correct result for."""
-        test_results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in test_data]
+        test_results = [(np.argmax(self.feed_forward(x)), y)
+                        for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
 
     def cost_derivative(self, output_activations, y):
@@ -123,9 +125,9 @@ def main():
     training_data = []
     nn = Network([16, 8, 8, 4])
     nn.stochastic_gradient_descent(training_data, epochs=30,
-                                    mini_batch_size=10,
-                                    eta=3.0,
-                                    test_data=None)
+                                   mini_batch_size=10,
+                                   eta=3.0,
+                                   test_data=None)
 
 
 if __name__ == "__main__":

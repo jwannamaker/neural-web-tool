@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import torch.nn as nn
 from torch import Tensor
-from torch.nn import functional as F
 
 
 class Network(nn.Module):
@@ -58,7 +57,8 @@ class Network(nn.Module):
             )
 
         for i in range(len(layer_sizes) - 1):
-            layer_name = f"hidden_{i}" if i < len(layer_sizes) - 2 else "output"
+            layer_name = f"hidden_{i}" if i < len(
+                layer_sizes) - 2 else "output"
             layer_name = "input" if i == 0 else layer_name
 
             self.layers[layer_name] = nn.Linear(
@@ -73,6 +73,6 @@ class Network(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         for layer_name in self.layers.keys():
-            x = self.layers[layer_name](x) 
+            x = self.layers[layer_name](x)
             x = self.activations[f"{layer_name}_activate_func"](x)
         return x

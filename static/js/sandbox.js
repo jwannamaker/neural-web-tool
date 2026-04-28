@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateProgressBlocks(percent) {
         const blocksToShow = Math.floor((percent / 100) * numBlocks);
         blocks.forEach((block, index) => {
-            block.style.display = index < blocksToShow ? "block" : "none";
+            block.style.opacity = index < blocksToShow ? "1" : "0";
         });
     }
 
@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setStatus("Training in progress...", true);
         startTrainingAnimation();
 
-        // Simulate progress for the block bar since training is sync on backend
+        // Simulate progress
         let fakeProgress = 0;
         const progressInterval = setInterval(() => {
             // Asymptotic progress: distance to 99% gets smaller over time

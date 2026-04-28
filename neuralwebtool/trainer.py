@@ -26,11 +26,25 @@ class Trainer:
         """
         self.model = model
         self.criterion = Trainer.LOSS_OPTIONS[config["loss"]]
-        self.optimizer = Trainer.OPTIMIZER_OPTIONS[config["optimizer"]](model.parameters(), lr=config["lr"])
+        self.optimizer = Trainer.OPTIMIZER_OPTIONS[config["optimizer"]](
+            model.parameters(), lr=config["lr"])
 
     def train_step(self, images, labels):
-        self.optimizer.zero_grad()              # Reset the gradients, by default they accumulate
+        # Reset the gradients, by default they accumulate
+        self.optimizer.zero_grad()
         output = self.model(images)             # Forward Pass
-        loss = self.criterion(output, labels)   # Calculate the accuracy of the model by comparing truth and predictions  
+        
+        # Calculate the loss depending on the criterion
+        import torch.nn.functional as F
+        if isinstance(self.criterion, nn.MSELoss):
+            labels_one_hot = F.one_hot(labels, num_classes=output.shape[1]).float()
+            loss = self.criterion(output, labels_one_hot)
+        elif isinstance(self.criterion, nn.NLLLoss):
+            log_probs = F.log_softmax(output, dim=1)
+            loss = self.criterion(log_probs, labels)
+        else:
+            loss = self.criterion(output, labels)
+            
         loss.backward()                         # Backprop, compute gradients
-        self.optimizer.step()                   # Gradient descent, here we update the weights of model
+        # Gradient descent, here we update the weights of model
+        self.optimizer.step()

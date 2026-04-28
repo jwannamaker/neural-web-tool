@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from torch import float32
-from torchvision.transforms.v2 import Compose, ToImage, ToDtype, Normalize, Lambda
+from torchvision.transforms.v2 import Compose, ToImage, ToDtype, Normalize
 from torchvision.datasets import MNIST
 from torch.utils.data import DataLoader
 
@@ -38,10 +38,12 @@ class Data:
             # Lambda(lambda x: x.unsqueeze(0)),
         ]
     )
-    
+
     def __init__(self):
-        self.mnist_training_data = MNIST(root="./data", train=True, download=True, transform=Data.TRANSFORM)
-        self.mnist_testing_data = MNIST(root="./data", train=False, download=True, transform=Data.TRANSFORM)
+        self.mnist_training_data = MNIST(
+            root="./data", train=True, download=True, transform=Data.TRANSFORM)
+        self.mnist_testing_data = MNIST(
+            root="./data", train=False, download=True, transform=Data.TRANSFORM)
 
     def get_dataloader(self, batch_size: int, train: bool = True) -> DataLoader:
         """
@@ -59,7 +61,6 @@ class Data:
 # quick tests to see if the dataloader works
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from torch import randint
 
     data = Data()
     train_loader = data.get_dataloader(batch_size=64, train=True)
@@ -83,5 +84,3 @@ if __name__ == "__main__":
         plt.axis("off")
         plt.imshow(img.squeeze(), cmap="gray")
     plt.show()
-
-

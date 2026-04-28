@@ -5,70 +5,48 @@
 {% block content %}
 <style>
     .network-page {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 24px;
+        max-width: 1000px;
+        margin: 20px auto;
     }
 
-    .network-page h1 {
-        margin-bottom: 12px;
+    .network-header {
+        text-align: center;
+        margin-bottom: 20px;
+        color: white;
     }
 
-    .network-page p {
-        margin-bottom: 24px;
-        font-size: 18px;
+    .network-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+        text-shadow: 2px 2px #000;
     }
 
     .controls {
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
-        align-items: end;
-        margin-bottom: 24px;
+        align-items: flex-end;
+        margin-bottom: 10px;
     }
 
     .control-group {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
     }
 
     .control-group label {
-        font-weight: 600;
-    }
-
-    .control-group input {
-        width: 220px;
-        padding: 10px 12px;
-        border: 1px solid #bbb;
-        border-radius: 8px;
-        font-size: 16px;
-    }
-
-    .render-btn {
-        padding: 10px 18px;
-        border: none;
-        border-radius: 8px;
-        background: #2d6cdf;
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .render-btn:hover {
-        background: #1f57bb;
+        font-weight: bold;
     }
 
     .network-wrapper {
         position: relative;
-        border: 1px solid #ccc;
-        border-radius: 12px;
+        border: 2px solid;
+        border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        background: #fff;
         padding: 40px;
         min-height: 480px;
-        background: #fafafa;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        overflow-x: auto;
     }
 
     #connectionLayer {
@@ -84,7 +62,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 90px;
+        gap: 120px;
         min-height: 400px;
     }
 
@@ -92,12 +70,17 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        z-index: 1;
     }
 
     .layer-label {
-        font-weight: 700;
-        margin-bottom: 12px;
-        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 12px;
+        background: var(--win-bg);
+        border: 2px solid;
+        border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+        padding: 4px 10px;
     }
 
     .neuron-stack {
@@ -105,65 +88,87 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 18px;
+        gap: 20px;
     }
 
     .neuron {
-        width: 56px;
-        height: 36px;
-        border: 1.5px solid #333;
-        border-radius: 12px;
-        font-size: 22px;
+        width: 40px;
+        height: 40px;
+        background-color: var(--win-bg);
+        border: 2px solid;
+        border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+        box-shadow: inset 1px 1px var(--win-border-light), inset -1px -1px var(--win-border-dark);
+        border-radius: 50%;
+        font-size: 14px;
+        font-weight: bold;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition: transform 0.1s ease;
     }
 
     .neuron:hover {
-        transform: scale(1.05);
+        transform: scale(1.1);
+        border-color: var(--win-border-darker) var(--win-border-light) var(--win-border-light) var(--win-border-darker);
     }
 
     .input-neuron {
-        background: #dbeafe;
+        background: var(--win-teal);
+        color: white;
     }
 
     .hidden-neuron {
-        background: #f1f5f9;
+        background: var(--win-bg);
     }
 
     .output-neuron {
-        background: #dcfce7;
+        background: var(--win-blue-start);
+        color: white;
     }
 
     .error-message {
-        color: #c62828;
-        font-weight: 600;
+        color: #ef4444;
+        font-weight: bold;
     }
 </style>
 
 <div class="network-page">
-    <h1>Neural Network Visualizer</h1>
-    <p>Choose the number of layers and neurons per layer.</p>
-
-    <div class="controls">
-        <div class="control-group">
-            <label for="layerCount">Number of layers</label>
-            <input type="number" id="layerCount" value="3" min="1">
-        </div>
-
-        <div class="control-group">
-            <label for="neuronsPerLayer">Neurons per layer</label>
-            <input type="text" id="neuronsPerLayer" value="4,5,2">
-        </div>
-
-        <button class="render-btn" onclick="renderNetwork()">Render Network</button>
+    <div class="network-header">
+        <h1>Network Visualizer</h1>
     </div>
 
-    <div class="network-wrapper">
-        <svg id="connectionLayer"></svg>
-        <div id="networkContainer"></div>
+    <div class="window">
+        <div class="window-title">
+            <span><img src="https://win98icons.alexmeub.com/icons/png/spider-0.png" width="16" height="16" style="vertical-align: middle; margin-right: 5px;"> Network Configuration</span>
+        </div>
+        <div class="window-content">
+            <p style="margin-top: 0; margin-bottom: 15px;">Specify the number of layers and neurons per layer to visualize the architecture.</p>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="layerCount">Number of layers</label>
+                    <input type="number" id="layerCount" value="3" min="1" class="input-win" style="width: 100px;">
+                </div>
+
+                <div class="control-group">
+                    <label for="neuronsPerLayer">Neurons per layer (comma-separated)</label>
+                    <input type="text" id="neuronsPerLayer" value="4,5,2" class="input-win" style="width: 250px;">
+                </div>
+
+                <button class="btn-win" onclick="renderNetwork()" style="font-weight: bold; margin-bottom: 2px;">Render</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="window">
+        <div class="window-title">
+            <span>Visualization</span>
+        </div>
+        <div class="window-content" style="padding: 10px;">
+            <div class="network-wrapper">
+                <svg id="connectionLayer"></svg>
+                <div id="networkContainer"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -261,8 +266,8 @@ function drawConnections(layers, svg) {
                 line.setAttribute("x2", toRect.left - svgRect.left);
                 line.setAttribute("y2", toRect.top + toRect.height / 2 - svgRect.top);
 
-                line.setAttribute("stroke", "#b0b0b0");
-                line.setAttribute("stroke-width", "1");
+                line.setAttribute("stroke", "#808080");
+                line.setAttribute("stroke-width", "2");
 
                 svg.appendChild(line);
             });

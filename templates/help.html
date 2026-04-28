@@ -117,7 +117,9 @@
                                 height="16"> Learning Rate & Epochs</li>
                     </ul>
                 </li>
-
+                <li onclick="showHelpSection('content-activations-detail')"><img
+                        src="https://win98icons.alexmeub.com/icons/png/directory_closed-1.png" width="16" height="16">
+                    How Activations Work</li>
             </ul>
         </div>
 
@@ -185,6 +187,37 @@
                     how
                     many images the model looks at before updating its weights.</p>
             </div>
+
+            <div id="content-activations-detail" style="display: none;">
+                <h2>How Activations Work</h2>
+                <p>In a neural network, a neuron receives inputs, multiplies them by weights, adds a bias, and then passes the result through an <b>activation function</b>.</p>
+                <p>Without an activation function, no matter how many layers a neural network has, it would simply act as a single linear transformation (like a straight line). This means it could never learn complex, non-linear patterns like recognizing handwritten curves and loops.</p>
+                <p>The activation function introduces <i>non-linearity</i>, giving the network the power to learn complex boundaries. In our sandbox, you configure the activation functions as a comma-separated list matching each hidden layer and the output layer. For example: <code>relu, relu, linear</code>.</p>
+                
+                <h3>Common Activation Functions</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <tr>
+                        <th style="border: 1px solid var(--win-border-dark); padding: 5px; text-align: left; background: var(--win-bg);">Function</th>
+                        <th style="border: 1px solid var(--win-border-dark); padding: 5px; text-align: left; background: var(--win-bg);">Behavior</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #fff;"><b>ReLU</b></td>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #fff;">Outputs the input directly if positive; otherwise outputs zero. It trains fast and avoids the vanishing gradient problem.</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #f8fafc;"><b>Sigmoid</b></td>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #f8fafc;">Squeezes values into an S-curve between 0 and 1. Can cause networks to stop learning if values get stuck at the extremes.</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #fff;"><b>Tanh</b></td>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #fff;">Similar to Sigmoid but centered at zero, squeezing values between -1 and 1.</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #f8fafc;"><b>Linear</b></td>
+                        <td style="border: 1px solid var(--win-border-dark); padding: 5px; background: #f8fafc;">Passes the value through unchanged. Used on the final output layer when predicting continuous numbers or before a final loss function applies its own probabilities.</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -193,6 +226,7 @@
     function showHelpSection(id) {
         document.getElementById('content-intro').style.display = 'none';
         document.getElementById('content-params').style.display = 'none';
+        document.getElementById('content-activations-detail').style.display = 'none';
         document.getElementById(id).style.display = 'block';
     }
 
