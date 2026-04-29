@@ -3,47 +3,167 @@
 {% block title %}Network Visualizer{% endblock %}
 
 {% block content %}
-<h1>Neural Network Visualizer</h1>
-<p>Choose the number of layers and neurons per layer.</p>
+<style>
+    .network-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+    }
 
-<div>
-    <label for="layerCount">Number of layers:</label>
-    <input type="number" id="layerCount" value="3" min="1">
-</div>
+    .network-page h1 {
+        margin-bottom: 12px;
+    }
 
-<br>
+    .network-page p {
+        margin-bottom: 24px;
+        font-size: 18px;
+    }
 
-<div>
-    <label for="neuronsPerLayer">Neurons per layer:</label>
-    <input type="text" id="neuronsPerLayer" value="4,5,2">
-</div>
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: end;
+        margin-bottom: 24px;
+    }
 
-<br>
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-<div>
-    <button onclick="renderNetwork()">Render Network</button>
-</div>
+    .control-group label {
+        font-weight: 600;
+    }
 
-<br>
+    .control-group input {
+        width: 220px;
+        padding: 10px 12px;
+        border: 1px solid #bbb;
+        border-radius: 8px;
+        font-size: 16px;
+    }
 
-<div style="position: relative;">
-    <svg id="connectionLayer" style="
+    .render-btn {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        background: #2d6cdf;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .render-btn:hover {
+        background: #1f57bb;
+    }
+
+    .network-wrapper {
+        position: relative;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        padding: 40px;
+        min-height: 480px;
+        background: #fafafa;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    #connectionLayer {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         pointer-events: none;
-    "></svg>
+    }
 
-    <div id="networkContainer" style="
+    #networkContainer {
         display: flex;
-        gap: 40px;
+        justify-content: center;
         align-items: center;
-        border: 1px solid black;
-        padding: 20px;
-        min-height: 300px;
-    ">
+        gap: 90px;
+        min-height: 400px;
+    }
+
+    .layer-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .layer-label {
+        font-weight: 700;
+        margin-bottom: 12px;
+        font-size: 20px;
+    }
+
+    .neuron-stack {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .neuron {
+        width: 56px;
+        height: 36px;
+        border: 1.5px solid #333;
+        border-radius: 12px;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .neuron:hover {
+        transform: scale(1.05);
+    }
+
+    .input-neuron {
+        background: #dbeafe;
+    }
+
+    .hidden-neuron {
+        background: #f1f5f9;
+    }
+
+    .output-neuron {
+        background: #dcfce7;
+    }
+
+    .error-message {
+        color: #c62828;
+        font-weight: 600;
+    }
+</style>
+
+<div class="network-page">
+    <h1>Neural Network Visualizer</h1>
+    <p>Choose the number of layers and neurons per layer.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="layerCount">Number of layers</label>
+            <input type="number" id="layerCount" value="3" min="1">
+        </div>
+
+        <div class="control-group">
+            <label for="neuronsPerLayer">Neurons per layer</label>
+            <input type="text" id="neuronsPerLayer" value="4,5,2">
+        </div>
+
+        <button class="render-btn" onclick="renderNetwork()">Render Network</button>
+    </div>
+
+    <div class="network-wrapper">
+        <svg id="connectionLayer"></svg>
+        <div id="networkContainer"></div>
     </div>
 </div>
 
@@ -63,48 +183,60 @@ function renderNetwork() {
     container.innerHTML = "";
     svg.innerHTML = "";
 
-    container.style.display = "flex";
-    container.style.gap = "40px";
-    container.style.alignItems = "center";
-
     if (neuronCounts.length !== layerCount) {
-        container.innerHTML = "<p>Layer count must match neuron list</p>";
+        container.innerHTML = "<p class='error-message'>Layer count must match neuron list.</p>";
         return;
     }
 
     const layers = [];
+    const maxNeurons = Math.max(...neuronCounts);
 
     neuronCounts.forEach((count, index) => {
         const layer = document.createElement("div");
-        layer.style.display = "flex";
-        layer.style.flexDirection = "column";
-        layer.style.alignItems = "center";
-        layer.style.gap = "10px";
+        layer.className = "layer-column";
+
+        const label = document.createElement("div");
+        label.className = "layer-label";
+
+        if (index === 0) {
+            label.textContent = "Input";
+        } else if (index === neuronCounts.length - 1) {
+            label.textContent = "Output";
+        } else {
+            label.textContent = "Hidden " + index;
+        }
+
+        layer.appendChild(label);
+
+        const neuronContainer = document.createElement("div");
+        neuronContainer.className = "neuron-stack";
+        neuronContainer.style.height = (maxNeurons * 54) + "px";
 
         const neurons = [];
 
         for (let i = 0; i < count; i++) {
             const neuron = document.createElement("div");
+            neuron.className = "neuron";
 
-            neuron.style.width = "60px";
-            neuron.style.height = "40px";
-            neuron.style.border = "2px solid black";
-            neuron.style.borderRadius = "10px";
-            neuron.style.display = "flex";
-            neuron.style.alignItems = "center";
-            neuron.style.justifyContent = "center";
+            if (index === 0) {
+                neuron.classList.add("input-neuron");
+            } else if (index === neuronCounts.length - 1) {
+                neuron.classList.add("output-neuron");
+            } else {
+                neuron.classList.add("hidden-neuron");
+            }
 
             neuron.textContent = i + 1;
 
-            layer.appendChild(neuron);
+            neuronContainer.appendChild(neuron);
             neurons.push(neuron);
         }
 
+        layer.appendChild(neuronContainer);
         container.appendChild(layer);
         layers.push(neurons);
     });
 
-    // draw connections AFTER layout renders
     setTimeout(() => drawConnections(layers, svg), 50);
 }
 
@@ -129,12 +261,15 @@ function drawConnections(layers, svg) {
                 line.setAttribute("x2", toRect.left - svgRect.left);
                 line.setAttribute("y2", toRect.top + toRect.height / 2 - svgRect.top);
 
-                line.setAttribute("stroke", "black");
+                line.setAttribute("stroke", "#b0b0b0");
+                line.setAttribute("stroke-width", "1");
 
                 svg.appendChild(line);
             });
         });
     }
 }
+
+window.onload = renderNetwork;
 </script>
 {% endblock %}
