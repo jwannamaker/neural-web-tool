@@ -16,17 +16,15 @@
         (url_for('about'), 'About'),
         (url_for('network'), 'Network Visualizer'),
         (url_for('sandbox'), 'Neural Network Sandbox')] %}
-        <a href="{{ href }}">{{ name }}</a> |
+        <a href="{{ href }}">{{ name }}</a>
         {% endfor %}
     </nav>
-
-    <hr />
 
     <main>
         {% block content %}
         {% endblock %}
     </main>
-
 </body>
 
+<script src="{{ url_for('static', filename='js/sandbox.js') }}"></script>
 </html>
