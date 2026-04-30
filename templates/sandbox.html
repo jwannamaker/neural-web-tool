@@ -7,36 +7,58 @@
 {% endblock %}
 
 {% block content %}
-<div id="controls">
-    <div id="layer-config"></div>
-    <button id="add-layer-button">+ Add Layer</button>
+<div class="window">
+    <div class="window-title">
+        <span>LayerConfig.txt</span>
+        <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+    </div>
 
-    <label>Learning rate</label>
-    <input type="range" id="lr" min="0.0001" max="0.01" step="0.0001" value="0.001">
-    <span id="lr-display">0.0010</span>
+    <div class="window-content">
+        <div id="layer-config"></div>
+        <button id="add-layer-button">+ Add Layer</button>
+    </div>
+</div>
 
-    <label>Epochs</label>
-    <input type="range" id="epochs" min="1" max="20" step="1" value="1">
-    <span id="epochs-display">1</span>
+<div class="window">
+    <div class="window-title">
+        <span>ModelConfig.txt</span>
+        <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+    </div>
 
-    <label>Batch size</label>
-    <input type="range" id="batch" min="16" max="256" step="8" value="64">
-    <span id="batch-display">64</span>
+    <div class="window-content">
+        <label>Learning rate</label>
+        <input type="range" id="lr" min="0.0001" max="0.01" step="0.0001" value="0.001">
+        <span id="lr-display">0.0010</span>
 
-    <label>Loss function</label>
-    <select id="loss">
-        <option value="cross_entropy">Cross entropy</option>
-        <option value="mse_loss">Mean squared error</option>
-        <option value="nll_loss">Negative log likelihood</option>
-    </select>
+        <label>Epochs</label>
+        <input type="range" id="epochs" min="1" max="20" step="1" value="1">
+        <span id="epochs-display">1</span>
 
-    <label>Optimizer</label>
-    <select id="optimizer">
-        <option value="adam">Adam</option>
-        <option value="sgd">SGD</option>
-    </select>
+        <label>Batch size</label>
+        <input type="range" id="batch" min="16" max="256" step="8" value="64">
+        <span id="batch-display">64</span>
+
+        <label>Loss function</label>
+        <select id="loss">
+            <option value="cross_entropy">Cross entropy</option>
+            <option value="mse_loss">Mean squared error</option>
+            <option value="nll_loss">Negative log likelihood</option>
+        </select>
+
+        <label>Optimizer</label>
+        <select id="optimizer">
+            <option value="adam">Adam</option>
+            <option value="sgd">SGD</option>
+        </select>
+    </div>
+</div>
 
     <button id="train-button">Train</button>
+    <div id="progress-bar">
+        {% for _ in range(12) %}
+            <div class="progress-block"></div>
+        {% endfor %}
+    </div>
     <button id="evaluate-button">Evaluate</button>
 </div>
 
@@ -53,5 +75,3 @@
 <div id="prediction-result"></div>
 {% endblock %}
 
-
-<script src="{{ url_for('static', filename='js/sandbox.js') }}"></script>
