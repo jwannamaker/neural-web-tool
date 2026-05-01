@@ -32,8 +32,10 @@ h1 {
 
     <div>
         <label>Neurons per layer</label><br>
-        <input type="text" id="neuronsPerLayer" value="4,5,2" style="padding:10px; width:300px;">
+        <input type="text" id="neuronsPerLayer" value="784,128,10" style="padding:10px; width:300px;">
     </div>
+
+    <button onclick="trainNetwork()">Train Network</button>
 
     <button onclick="sendToBackend()" style="
         padding:12px 24px;
@@ -50,30 +52,30 @@ h1 {
 
 <br><br>
 
-<div style="position: relative;">
-    <svg id="connectionLayer" style="
-        position:absolute;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        pointer-events:none;
-    "></svg>
+<!-- MAIN VISUAL AREA -->
+<div style="display:flex; gap:40px; align-items:flex-start; justify-content:center;">
 
-    <div style="display:flex; gap:40px; align-items:flex-start; justify-content:center; margin-top:20px;">
-
+    <!-- NETWORK + SVG -->
     <div style="position: relative;">
-        <svg id="connectionLayer" style="
-            position:absolute;
-            top:0;
-            left:0;
-            width:100%;
-            height:100%;
-            pointer-events:none;
-        "></svg>
 
+        <!-- SVG LINES -->
+        <svg id="connectionLayer"
+            style="
+                position:absolute;
+                top:0;
+                left:0;
+                width:100%;
+                height:100%;
+                pointer-events:none;
+            ">
+        </svg>
+
+        <!-- NEURONS -->
         <div id="networkContainer"></div>
+
     </div>
+
+    <!-- OUTPUT BOX -->
     <div id="outputBox" style="
         min-width:200px;
         padding:20px;
@@ -86,19 +88,20 @@ h1 {
     </div>
 
 </div>
-</div>
 
 <script>
 let allLines = [];
 let neuronMap = new Map();
+let networkWeights = [];
 
 function renderNetwork() {
-    const layerCount = parseInt(document.getElementById("layerCount").value);
-    const neuronInput = document.getElementById("neuronsPerLayer").value;
+    const MAX_NEURONS = 12;
 
-    const neuronCounts = neuronInput
+    const neuronCounts = document
+        .getElementById("neuronsPerLayer")
+        .value
         .split(",")
-        .map(n => parseInt(n.trim()))
+        .map(n => Math.min(parseInt(n.trim()), MAX_NEURONS))
         .filter(n => !isNaN(n));
 
     const container = document.getElementById("networkContainer");
@@ -108,11 +111,6 @@ function renderNetwork() {
     svg.innerHTML = "";
     allLines = [];
     neuronMap.clear();
-
-    if (neuronCounts.length !== layerCount) {
-        container.innerHTML = "<p>Layer count must match neuron list</p>";
-        return;
-    }
 
     const layers = [];
 
@@ -125,7 +123,6 @@ function renderNetwork() {
 
         const label = document.createElement("div");
         label.style.fontWeight = "bold";
-        label.style.marginBottom = "10px";
 
         if (layerIndex === 0) label.textContent = "Input";
         else if (layerIndex === neuronCounts.length - 1) label.textContent = "Output";
@@ -137,6 +134,16 @@ function renderNetwork() {
 
         for (let i = 0; i < count; i++) {
             const neuron = document.createElement("div");
+
+            neuron.style.cursor = "pointer";
+
+            neuron.addEventListener("mouseenter", () => {
+                highlightConnections(neuron);
+            });
+
+            neuron.addEventListener("mouseleave", () => {
+                resetConnections();
+            });
 
             neuron.style.width = "52px";
             neuron.style.height = "34px";
@@ -150,20 +157,7 @@ function renderNetwork() {
             neuron.style.display = "flex";
             neuron.style.alignItems = "center";
             neuron.style.justifyContent = "center";
-            neuron.style.cursor = "pointer";
-            neuron.style.transition = "transform 0.15s ease";
-
             neuron.textContent = i + 1;
-
-            neuron.addEventListener("mouseenter", () => {
-                neuron.style.transform = "scale(1.1)";
-                highlightConnections(neuron);
-            });
-
-            neuron.addEventListener("mouseleave", () => {
-                neuron.style.transform = "scale(1)";
-                resetConnections();
-            });
 
             layer.appendChild(neuron);
             neurons.push(neuron);
@@ -173,7 +167,6 @@ function renderNetwork() {
         layers.push(neurons);
     });
 
-
     setTimeout(() => drawConnections(layers, svg), 50);
 }
 
@@ -181,13 +174,10 @@ function drawConnections(layers, svg) {
     const svgRect = svg.getBoundingClientRect();
 
     for (let i = 0; i < layers.length - 1; i++) {
-        const currentLayer = layers[i];
-        const nextLayer = layers[i + 1];
-
-        currentLayer.forEach(fromNeuron => {
+        layers[i].forEach((fromNeuron, fromIndex) => {
             const fromRect = fromNeuron.getBoundingClientRect();
 
-            nextLayer.forEach(toNeuron => {
+            layers[i + 1].forEach((toNeuron, toIndex) => {
                 const toRect = toNeuron.getBoundingClientRect();
 
                 const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -198,12 +188,18 @@ function drawConnections(layers, svg) {
                 line.setAttribute("y2", toRect.top + toRect.height / 2 - svgRect.top);
 
                 line.setAttribute("stroke", "black");
-                line.setAttribute("stroke-width", "0.8");
+                line.setAttribute("stroke-width", "1");
+
+                // 🔥 attach weight safely
+                if (networkWeights[i] && networkWeights[i][toIndex]) {
+                    const weight = networkWeights[i][toIndex][fromIndex];
+                    line.dataset.weight = weight;
+                }
 
                 svg.appendChild(line);
-
                 allLines.push(line);
 
+                // 🔥 map connections
                 if (!neuronMap.has(fromNeuron)) neuronMap.set(fromNeuron, []);
                 if (!neuronMap.has(toNeuron)) neuronMap.set(toNeuron, []);
 
@@ -214,16 +210,89 @@ function drawConnections(layers, svg) {
     }
 }
 
+function sendToBackend() {
+    const neurons = document
+        .getElementById("neuronsPerLayer")
+        .value
+        .split(",")
+        .map(n => parseInt(n.trim()));
+
+    fetch("/api/network", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ neurons })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+
+        if (data.status !== "success") {
+            alert("Backend error: " + data.message);
+            return;
+        }
+
+        networkWeights = data.weights;
+
+        renderNetwork(); // ✅ FIX: correct function
+
+        updateOutput(data);
+    })
+    .catch(err => console.error(err));
+}
+
+function trainNetwork() {
+    fetch('/api/train', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+
+        if (data.status !== "trained") {
+            alert("Training error: " + data.message);
+            return;
+        }
+
+        networkWeights = data.weights;
+
+        renderNetwork(); // ✅ FIX
+
+        updateOutput(data);
+    })
+    .catch(err => console.error(err));
+}
+
+function updateOutput(data) {
+    const box = document.getElementById("outputBox");
+
+    if (!data.output) return;
+
+    box.innerHTML = "<h3>Prediction Output</h3>";
+
+    if (data.prediction !== undefined) {
+        box.innerHTML += `<b>Predicted Digit: ${data.prediction}</b><br><br>`;
+    }
+
+    box.innerHTML += data.output[0]
+        .map((val, i) => `Neuron ${i+1}: ${Number(val).toFixed(4)}`)
+        .join("<br>");
+}
+
 function highlightConnections(neuron) {
     const connected = neuronMap.get(neuron) || [];
 
     allLines.forEach(line => {
         if (connected.includes(line)) {
-            line.setAttribute("stroke", "#2563eb");
-            line.setAttribute("stroke-width", "2");
+            const weight = parseFloat(line.dataset.weight || 0);
+
+            if (weight > 0) {
+                line.setAttribute("stroke", "red");
+            } else {
+                line.setAttribute("stroke", "blue");
+            }
+
+            line.setAttribute("stroke-width", Math.abs(weight) * 3 + 1);
         } else {
-            line.setAttribute("stroke", "black");
-            line.setAttribute("stroke-width", "0.8");
+            line.setAttribute("stroke", "#ccc");
+            line.setAttribute("stroke-width", "1");
         }
     });
 }
@@ -231,43 +300,8 @@ function highlightConnections(neuron) {
 function resetConnections() {
     allLines.forEach(line => {
         line.setAttribute("stroke", "black");
-        line.setAttribute("stroke-width", "0.8");
+        line.setAttribute("stroke-width", "1");
     });
-}
-
-function sendToBackend() {
-    const layerCount = parseInt(document.getElementById("layerCount").value);
-    const neuronInput = document.getElementById("neuronsPerLayer").value;
-
-    const neuronCounts = neuronInput
-        .split(",")
-        .map(n => parseInt(n.trim()))
-        .filter(n => !isNaN(n));
-
-    fetch('/api/network', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            layers: layerCount,
-            neurons: neuronCounts
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Backend response:", data);
-
-        renderNetwork();
-
-        if (data.output) {
-            const box = document.getElementById("outputBox");
-
-            box.innerHTML = "<h3>Prediction Output</h3>" +
-                data.output.map((val, i) => 
-                    `<div>Neuron ${i+1}: <strong>${val.toFixed(4)}</strong></div>`
-                ).join("");
-        }
-    })
-    .catch(err => console.error(err));
 }
 </script>
 
