@@ -275,10 +275,4 @@ def neuron_info() -> Union[Response, Tuple[Response, int]]:
 
 
 if __name__ == "__main__":
-    # check for a port argument
-    port: int = 8080
-    if "--port" in sys.argv:
-        port = int(sys.argv[sys.argv.index("--port") + 1])
-
-    app.run(host="0.0.0.0", port=port, debug=True)
-
+    app.run(host="0.0.0.0", port=8080)
