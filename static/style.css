@@ -1,6 +1,10 @@
 /* =========================
-   Windows 95 Theme 
+   Windows 95 Theme
    ========================= */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
 :root {
     --win-bg: #008080;
@@ -28,6 +32,17 @@ body {
 }
 
 
+/* ---- Page layouts ---- */
+main {
+    padding: 10px 10px 74px;
+}
+
+.page-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
 /* ---- Window Container ---- */
 .window {
     background: var(--win-mid);
@@ -39,7 +54,8 @@ body {
         inset -1px -1px 0 var(--win-black),
         inset 1px 1px 0 var(--win-light);
 
-    margin: 60px;
+    margin: 8px;
+    min-width: 0;
 }
 
 /* ---- Title Bar ---- */
@@ -92,6 +108,8 @@ body {
 .window-content {
     display: grid;
     padding: 10px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .form {
@@ -110,7 +128,9 @@ body {
 .layer-config-row,
 .layer-config-header {
     display: grid;
-    grid-template-columns: 15% 35% 35% 15%;
+    grid-template-columns: 16% 38% 38% fit-content(20px);
+    gap: 4px;
+    padding: 2px;
 }
 
 /* ---- Typography ---- */

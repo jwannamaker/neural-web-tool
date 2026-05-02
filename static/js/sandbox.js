@@ -16,7 +16,7 @@ function addLayerConfigRow(size = 10, activation = 'relu', isInput = false, isOu
                    <option value="tanh"    ${activation === 'tanh' ? 'selected' : ''}>Tanh</option>
                    <option value="linear"  ${activation === 'linear' ? 'selected' : ''}>Linear</option>
                </select>
-               ${!isInput ? '<button class="remove-row-button">Remove</button>' : ''}`}
+               ${!isInput ? '<button class="remove-row-button">X</button>' : ''}`}
     `;
     if (!isInput && !isOutput) {
         row.querySelector('.remove-row-button').addEventListener('click', () => {
