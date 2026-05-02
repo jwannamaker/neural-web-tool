@@ -78,7 +78,7 @@
     </div>
 
     <div class="window-content">
-        <canvas id="network-canvas"></canvas>
+        <div class="canvas-frame"><canvas id="network-canvas"></canvas></div>
     </div>
 </div>
 
@@ -88,26 +88,29 @@
         <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
     </div>
 
-    <div class="window-content" style="display: row;">
+    <div class="window-content" style="display: flex; flex-direction: column;">
+        <div class="canvas-frame"><canvas id="loss-canvas"></canvas></div>
+        <hr>
+
         <button id="train-button">Train</button>
         <button id="evaluate-button">Evaluate</button>
+        <hr>
 
         <div id="progress-bar">
             {% for _ in range(12) %}
                 <div class="progress-block"></div>
             {% endfor %}
         </div>
-        <canvas id="loss-canvas"></canvas>
     </div>
 </div>
 
 
 <div class="window">
     <div class="window-title">
-        <span>Predict.txt</span>
+        <span>Predict.exe</span>
     </div>
 
-    <div class="window-content" style="display: flex;">
+    <div class="window-content" style="display: flex; flex-direction: column;">
         <div id="stats">
             <span id="status">Ready</span>
             <span id="accuracy-display"></span>

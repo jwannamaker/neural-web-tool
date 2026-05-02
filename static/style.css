@@ -260,8 +260,7 @@ body {
     opacity: 0;
 }
 
-#network-canvas,
-#loss-canvas {
+.canvas-frame {
     display: block;
     width: 100%;
     background: var(--win-white);
@@ -271,7 +270,23 @@ body {
         inset -2px -2px 0 var(--win-light),
         inset 2px 2px 0 var(--win-dark);
     box-sizing: border-box;
+    pointer-events: none;
+    position: relative;
+}
+
+.canvas-frame > canvas {
+    display: block;
+    width: 100%;
+    pointer-events: auto;
 }
 
 #network-canvas { height: 300px; }
 #loss-canvas    { height: 200px; }
+
+#draw-canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+}

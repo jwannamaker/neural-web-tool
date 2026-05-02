@@ -290,7 +290,7 @@ function drawLossGraph(losses) {
 
     if (losses.length === 0) return;
 
-    const pad    = { top: 20, right: 20, bottom: 30, left: 50 };
+    const pad    = { top: 20, right: 20, bottom: 44, left: 64 };
     const graphW = W - pad.left - pad.right;
     const graphH = H - pad.top  - pad.bottom;
 
@@ -340,6 +340,22 @@ function drawLossGraph(losses) {
     lossCtx.lineTo(pad.left, pad.top + graphH);
     lossCtx.lineTo(pad.left + graphW, pad.top + graphH);
     lossCtx.stroke();
+
+    // Axis titles
+    lossCtx.fillStyle    = ELLIPSIS_COLOR;
+    lossCtx.font         = '12px sans-serif';
+
+    lossCtx.textAlign    = 'center';
+    lossCtx.textBaseline = 'bottom';
+    lossCtx.fillText('Epoch', pad.left + graphW / 2, H - 2);
+
+    lossCtx.save();
+    lossCtx.translate(12, pad.top + graphH / 2);
+    lossCtx.rotate(-Math.PI / 2);
+    lossCtx.textAlign    = 'center';
+    lossCtx.textBaseline = 'top';
+    lossCtx.fillText('Loss', 0, 0);
+    lossCtx.restore();
 
     // Loss line
     lossCtx.strokeStyle = NEURON_STROKE;
@@ -428,4 +444,5 @@ addLayerConfigRow(128, 'relu', false, false);
 addLayerConfigRow(64, 'relu', false, false);
 addLayerConfigRow(10, 'linear', false, true);
 drawNetwork([784, 128, 64, 10]);
+drawLossGraph([]);
 
