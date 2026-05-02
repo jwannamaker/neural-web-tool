@@ -48,6 +48,9 @@ function relabelRows() {
             label.textContent = `Hidden ${hiddenCount}`;
         }
     });
+    drawNetwork(getLayerSizesFromUI());
+    hideTooltip();
+    neuronInfoCache.clear();
 }
 
 function getLayerSizesFromUI() {
@@ -92,6 +95,7 @@ async function trainNetwork() {
     document.getElementById('status').textContent = 'Training...';
     startProgress();
     lossHistory = [];
+    neuronInfoCache.clear();
 
     const res = await fetch('/api/train', {
         method: 'POST',
@@ -175,12 +179,14 @@ const netCtx = netCanvas.getContext('2d');
 
 const MAX_VISIBLE = 10;
 const SHOW_TOP = 5;
-const NEURON_R = 10;
+const NEURON_R = 5;
 
-const NEURON_FILL = '#E6F1FB';
-const NEURON_STROKE = '#185FA5';
-const CONN_COLOR = '#185FA520';
-const ELLIPSIS_COLOR = '#5F5E5A';
+const NEURON_COLOR = '#000000';
+const CONN_COLOR = 'rgba(0,0,0,0.15)';
+const ELLIPSIS_COLOR = '#000000';
+const GRAPH_COLOR = '#185FA5';
+
+let neuronHitTargets = []; // {x, y, layer, neuron} — ready for hover
 
 function visibleNeurons(count) {
     if (count <= MAX_VISIBLE) {
@@ -226,6 +232,8 @@ function drawNetwork(layers) {
     const layerXs = layers.map((_, i) => hPad + (i / (layers.length - 1)) * (W - 2 * hPad));
     const layerVis = layers.map(count => visibleNeurons(count));
 
+    neuronHitTargets = [];
+
     // Connections drawn first, behind neurons
     netCtx.strokeStyle = CONN_COLOR;
     netCtx.lineWidth = 0.5;
@@ -258,18 +266,95 @@ function drawNetwork(layers) {
             netCtx.fillText('···', x, getNeuronY(vis, SHOW_TOP, H));
         }
 
-        for (const slot of slots) {
+        slots.forEach((slot, k) => {
             const y = getNeuronY(vis, slot, H);
+            neuronHitTargets.push({ x, y, layer: li, neuron: vis.indices[k] });
             netCtx.beginPath();
             netCtx.arc(x, y, NEURON_R, 0, Math.PI * 2);
-            netCtx.fillStyle = NEURON_FILL;
+            netCtx.fillStyle = NEURON_COLOR;
             netCtx.fill();
-            netCtx.strokeStyle = NEURON_STROKE;
-            netCtx.lineWidth = 1;
-            netCtx.stroke();
-        }
+        });
     }
 }
+
+// ─── Network hover tooltip ────────────────────────────────────────────────────
+
+const netTooltip = document.createElement('div');
+netTooltip.style.cssText =
+    'position:fixed;display:none;background:#fff;border:1px solid #000;' +
+    'padding:6px 8px;font:11px monospace;pointer-events:none;z-index:100;' +
+    'white-space:pre;line-height:1.6;';
+document.body.appendChild(netTooltip);
+
+const neuronInfoCache = new Map();
+let hoveredKey = null;
+
+function showTooltip(clientX, clientY, text) {
+    netTooltip.textContent = text;
+    netTooltip.style.display = 'block';
+    const tw = netTooltip.offsetWidth;
+    const th = netTooltip.offsetHeight;
+    netTooltip.style.left = Math.min(clientX + 14, window.innerWidth  - tw - 8) + 'px';
+    netTooltip.style.top  = Math.min(clientY + 14, window.innerHeight - th - 8) + 'px';
+}
+
+function hideTooltip() {
+    netTooltip.style.display = 'none';
+    hoveredKey = null;
+}
+
+async function fetchNeuronInfo(layer, neuron) {
+    const key = `${layer}-${neuron}`;
+    if (neuronInfoCache.has(key)) return neuronInfoCache.get(key);
+    try {
+        const res = await fetch('/api/neuron_info', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ layer, neuron }),
+        });
+        const data = await res.json();
+        neuronInfoCache.set(key, data);
+        return data;
+    } catch {
+        return null;
+    }
+}
+
+function formatNeuronTooltip(data) {
+    if (!data || data.error) return data?.error ?? 'No network';
+    if (data.type === 'input') return `Input  neuron ${data.neuron}`;
+    const w = data.weights;
+    return [
+        `${data.type === 'output' ? 'Output' : 'Hidden'} neuron ${data.neuron}`,
+        `Bias     ${data.bias.toFixed(5)}`,
+        `Weights  ${w.count}`,
+        `  mean ${w.mean.toFixed(5)}   std ${w.std.toFixed(5)}`,
+        `  min  ${w.min.toFixed(5)}   max ${w.max.toFixed(5)}`,
+    ].join('\n');
+}
+
+netCanvas.addEventListener('mousemove', async (e) => {
+    const rect = netCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const hit = neuronHitTargets.find(t => Math.hypot(mx - t.x, my - t.y) <= NEURON_R + 4);
+    if (!hit) { hideTooltip(); return; }
+
+    const key = `${hit.layer}-${hit.neuron}`;
+    if (key === hoveredKey) {
+        netTooltip.style.left = Math.min(e.clientX + 14, window.innerWidth  - netTooltip.offsetWidth  - 8) + 'px';
+        netTooltip.style.top  = Math.min(e.clientY + 14, window.innerHeight - netTooltip.offsetHeight - 8) + 'px';
+        return;
+    }
+
+    hoveredKey = key;
+    const data = await fetchNeuronInfo(hit.layer, hit.neuron);
+    if (hoveredKey !== key) return; // mouse moved away while fetching
+    showTooltip(e.clientX, e.clientY, formatNeuronTooltip(data));
+});
+
+netCanvas.addEventListener('mouseleave', hideTooltip);
 
 // ─── Loss graph canvas ────────────────────────────────────────────────────────
 
@@ -358,7 +443,7 @@ function drawLossGraph(losses) {
     lossCtx.restore();
 
     // Loss line
-    lossCtx.strokeStyle = NEURON_STROKE;
+    lossCtx.strokeStyle = GRAPH_COLOR;
     lossCtx.lineWidth   = 2;
     lossCtx.beginPath();
     losses.forEach((loss, i) => {
@@ -368,7 +453,7 @@ function drawLossGraph(losses) {
     lossCtx.stroke();
 
     // Data points
-    lossCtx.fillStyle = NEURON_STROKE;
+    lossCtx.fillStyle = GRAPH_COLOR;
     losses.forEach((loss, i) => {
         lossCtx.beginPath();
         lossCtx.arc(toX(i), toY(loss), 3, 0, Math.PI * 2);
