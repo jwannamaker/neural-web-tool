@@ -91,6 +91,7 @@ function stopProgress() {
 async function trainNetwork() {
     document.getElementById('status').textContent = 'Training...';
     startProgress();
+    lossHistory = [];
 
     const res = await fetch('/api/train', {
         method: 'POST',
@@ -106,10 +107,28 @@ async function trainNetwork() {
         })
     });
 
-    stopProgress();
-    const data = await res.json();
-    document.getElementById('status').textContent = data.message || data.error;
-    drawNetwork(getLayerSizesFromUI());
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    for await (const chunk of res.body) {
+        buffer += decoder.decode(chunk, { stream: true });
+        const events = buffer.split('\n\n');
+        buffer = events.pop();
+
+        for (const event of events) {
+            const line = event.trim();
+            if (!line.startsWith('data: ')) continue;
+            const data = JSON.parse(line.slice(6));
+            if (data.done) {
+                stopProgress();
+                document.getElementById('status').textContent = data.message;
+                drawNetwork(getLayerSizesFromUI());
+            } else {
+                lossHistory.push(data.loss);
+                drawLossGraph(lossHistory);
+            }
+        }
+    }
 }
 
 async function evaluateNetwork() {
@@ -252,6 +271,95 @@ function drawNetwork(layers) {
     }
 }
 
+// ─── Loss graph canvas ────────────────────────────────────────────────────────
+
+const lossCanvas = document.getElementById('loss-canvas');
+const lossCtx    = lossCanvas.getContext('2d');
+let   lossHistory = [];
+
+function drawLossGraph(losses) {
+    const W = lossCanvas.offsetWidth;
+    const H = lossCanvas.offsetHeight;
+
+    lossCanvas.width  = W * devicePixelRatio;
+    lossCanvas.height = H * devicePixelRatio;
+    lossCtx.scale(devicePixelRatio, devicePixelRatio);
+
+    lossCtx.fillStyle = '#ffffff';
+    lossCtx.fillRect(0, 0, W, H);
+
+    if (losses.length === 0) return;
+
+    const pad    = { top: 20, right: 20, bottom: 30, left: 50 };
+    const graphW = W - pad.left - pad.right;
+    const graphH = H - pad.top  - pad.bottom;
+
+    const minLoss   = Math.min(...losses);
+    const maxLoss   = Math.max(...losses);
+    const lossRange = maxLoss - minLoss || 1;
+
+    const toX = i => pad.left + (losses.length === 1 ? graphW / 2 : (i / (losses.length - 1)) * graphW);
+    const toY = v => pad.top  + (1 - (v - minLoss) / lossRange) * graphH;
+
+    // Horizontal grid lines + Y-axis labels
+    const gridLines = 4;
+    for (let g = 0; g <= gridLines; g++) {
+        const y     = pad.top + (g / gridLines) * graphH;
+        const value = maxLoss - (g / gridLines) * lossRange;
+
+        lossCtx.strokeStyle = '#e0e0e0';
+        lossCtx.lineWidth   = 1;
+        lossCtx.beginPath();
+        lossCtx.moveTo(pad.left, y);
+        lossCtx.lineTo(pad.left + graphW, y);
+        lossCtx.stroke();
+
+        lossCtx.fillStyle    = ELLIPSIS_COLOR;
+        lossCtx.font         = '11px sans-serif';
+        lossCtx.textAlign    = 'right';
+        lossCtx.textBaseline = 'middle';
+        lossCtx.fillText(value.toFixed(3), pad.left - 4, y);
+    }
+
+    // X-axis epoch labels
+    const labelStep = Math.ceil(losses.length / 10);
+    lossCtx.fillStyle    = ELLIPSIS_COLOR;
+    lossCtx.font         = '11px sans-serif';
+    lossCtx.textAlign    = 'center';
+    lossCtx.textBaseline = 'top';
+    losses.forEach((_, i) => {
+        if (i % labelStep === 0 || i === losses.length - 1)
+            lossCtx.fillText(i + 1, toX(i), pad.top + graphH + 4);
+    });
+
+    // Axes
+    lossCtx.strokeStyle = '#808080';
+    lossCtx.lineWidth   = 1;
+    lossCtx.beginPath();
+    lossCtx.moveTo(pad.left, pad.top);
+    lossCtx.lineTo(pad.left, pad.top + graphH);
+    lossCtx.lineTo(pad.left + graphW, pad.top + graphH);
+    lossCtx.stroke();
+
+    // Loss line
+    lossCtx.strokeStyle = NEURON_STROKE;
+    lossCtx.lineWidth   = 2;
+    lossCtx.beginPath();
+    losses.forEach((loss, i) => {
+        if (i === 0) lossCtx.moveTo(toX(i), toY(loss));
+        else         lossCtx.lineTo(toX(i), toY(loss));
+    });
+    lossCtx.stroke();
+
+    // Data points
+    lossCtx.fillStyle = NEURON_STROKE;
+    losses.forEach((loss, i) => {
+        lossCtx.beginPath();
+        lossCtx.arc(toX(i), toY(loss), 3, 0, Math.PI * 2);
+        lossCtx.fill();
+    });
+}
+
 // ─── Draw canvas (digit input) ────────────────────────────────────────────────
 
 const drawCanvas = document.getElementById('draw-canvas');
@@ -308,7 +416,10 @@ document.getElementById('evaluate-button').addEventListener('click', evaluateNet
 document.getElementById('predict-button').addEventListener('click', predictDrawing);
 document.getElementById('clear-button').addEventListener('click', clearDrawCanvas);
 
-window.addEventListener('resize', () => drawNetwork(getLayerSizesFromUI()));
+window.addEventListener('resize', () => {
+    drawNetwork(getLayerSizesFromUI());
+    drawLossGraph(lossHistory);
+});
 
 // ─── Initialize ──────────────────────────────────────────────────────────
 

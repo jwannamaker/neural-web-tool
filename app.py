@@ -4,10 +4,11 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import base64
 import io
+import json
 from PIL import Image
 import numpy as np
 import torch
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context
 
 from neuralwebtool.model import Network as NeuralNetwork
 from neuralwebtool.trainer import Trainer
@@ -128,19 +129,24 @@ def train() -> Union[Response, Tuple[Response, int]]:
     data_handler: Data = Data()
     train_loader: Any = data_handler.get_dataloader(batch_size=batch_size, train=True)
     trainer: Trainer = Trainer(current_network, config)
-    
-    # Simple synchronous training loop for the sandbox
-    epoch_losses = []
-    for epoch in range(epochs):
-        epoch_loss = 0.0
-        batch_count = 0
-        for images, labels in train_loader:
-            images = images.reshape(images.size(0), -1)
-            epoch_loss += trainer.train_step(images, labels)
-            batch_count += 1
-        epoch_losses.append(epoch_loss / batch_count)
 
-    return jsonify({"message": f"Training complete for {epochs} epochs!", "losses": epoch_losses})
+    def generate():
+        for epoch in range(epochs):
+            epoch_loss = 0.0
+            batch_count = 0
+            for images, labels in train_loader:
+                images = images.reshape(images.size(0), -1)
+                epoch_loss += trainer.train_step(images, labels)
+                batch_count += 1
+            avg_loss = epoch_loss / batch_count
+            yield f"data: {json.dumps({'epoch': epoch + 1, 'loss': avg_loss})}\n\n"
+        yield f"data: {json.dumps({'done': True, 'message': f'Training complete for {epochs} epochs!'})}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        content_type='text/event-stream',
+        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'},
+    )
 
 
 @app.route("/api/evaluate", methods=["POST"])
