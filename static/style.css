@@ -107,7 +107,8 @@ body {
     padding: 2px;
 }
 
-.layer-config-row .layer-config-header {
+.layer-config-row,
+.layer-config-header {
     display: grid;
     grid-template-columns: 15% 35% 35% 15%;
 }
