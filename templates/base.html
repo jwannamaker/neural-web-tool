@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
+
 <head>
     {% block head %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', fileneme='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <title>{% block title %}Neural Web Tool{% endblock %}</title>
     {% endblock %}
 </head>
 
 <body>
-<nav>
-    {% for href, name in [(url_for('index'), 'Home'),
-                          (url_for('about'), 'About'),
-                          (url_for('models'), 'Models')] %}
-        <a href="{{ href }}">{{ name }}</a> |
-    {% endfor %}
-</nav>
-
-    <hr/>
+    <nav>
+        {% for href, name in [(url_for('index'), 'Home'),
+        (url_for('about'), 'About'),
+        (url_for('sandbox'), 'Sandbox')] %}
+        <a href="{{ href }}">{{ name }}</a>
+        {% endfor %}
+    </nav>
 
     <main>
         {% block content %}
         {% endblock %}
     </main>
-
 </body>
+
+<script src="{{ url_for('static', filename='js/sandbox.js') }}"></script>
 </html>
