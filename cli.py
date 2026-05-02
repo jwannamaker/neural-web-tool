@@ -8,7 +8,9 @@ from neuralwebtool.trainer import Trainer
 from neuralwebtool.data import Data
 
 
-@click.group(help='Neural Web Tool CLI. Use subcommands to create, train, or evaluate neural networks.')
+@click.group(
+    help="Neural Web Tool CLI. Use subcommands to create, train, or evaluate neural networks."
+)
 def cli() -> None:
     """Neural Web Tool - Train and test neural networks from the command line."""
     pass

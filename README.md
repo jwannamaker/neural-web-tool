@@ -29,6 +29,12 @@ Initial Application Prototype
 
 ---
 
-Application Interface (WIP)
+Application Interface First Iteration
 
 <img width="1513" height="593" alt="progress_update" src="https://github.com/user-attachments/assets/fda3ea49-c5a6-453c-958e-2165cf166a6a" />
+
+---
+
+Application Interfact Second Iteration
+
+<img width="1927" height="1310" alt="neural-web-tool-app" src="https://github.com/user-attachments/assets/54050cc4-6f80-49b6-b032-9fd5a5d61ee2" />

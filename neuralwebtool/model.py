@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import torch.nn as nn
 from torch import Tensor
-from torch.nn import functional as F
 
 
 class Network(nn.Module):
