@@ -1,7 +1,7 @@
 """Flask web application for neural network visualization and training."""
 
 import sys
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import base64
 import io
@@ -9,6 +9,7 @@ import json
 from PIL import Image
 import numpy as np
 import torch
+import torch.nn as nn
 from flask import (
     Flask,
     render_template,
@@ -210,28 +211,8 @@ def predict_image() -> Union[Response, Tuple[Response, int]]:
         # Resize to 28x28
         image = image.resize((28, 28))
 
-        # Convert to numpy array and normalize
-        # MNIST images are black background (0) and white text (255)
-        # We need to make sure the input matches this.
-        # Usually drawings on canvas are black on white, so we might need to invert.
-        # The user's drawing logic will determine this.
-        img_array = np.array(image, dtype=np.float32)
-
-        # Simple normalization to [0, 1] then match MNIST stats if possible
-        # Or just use the Data.TRANSFORM logic
-        # But here we'll do it manually for simplicity
-        img_array = img_array / 255.0
-
-        # MNIST is white on black. If canvas is black on white, invert:
-        # We'll assume the frontend sends white on black or we invert here.
-        # Let's assume frontend sends white stroke on black background.
-
-        # Apply normalization matching Data.py
-        # mean=[0.130627,], std=[0.308107,]
-        img_array = (img_array - 0.130627) / 0.308107
-
-        # Flatten and convert to tensor
-        input_tensor = torch.tensor(img_array).reshape(1, 784)
+        # Apply the same transform used during training
+        input_tensor = Data.TRANSFORM(image).reshape(1, 784)
 
         current_network.eval()
         with torch.no_grad():
@@ -249,6 +230,48 @@ def predict_image() -> Union[Response, Tuple[Response, int]]:
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/neuron_info", methods=["POST"])
+def neuron_info() -> Union[Response, Tuple[Response, int]]:
+    global current_network
+    if current_network is None:
+        return jsonify({"error": "No network created yet"}), 400
+
+    data: Optional[Dict[str, Any]] = request.get_json()
+    if data is None:
+        return jsonify({"error": "Invalid payload"}), 400
+
+    layer_idx: int = data.get("layer", 0)
+    neuron_idx: int = data.get("neuron", 0)
+
+    if layer_idx == 0:
+        return jsonify({"type": "input", "neuron": neuron_idx})
+
+    layer_names = list(current_network.layers.keys())
+    linear_idx = layer_idx - 1
+    if linear_idx >= len(layer_names):
+        return jsonify({"error": "Layer index out of range"}), 400
+
+    linear = cast(nn.Linear, current_network.layers[layer_names[linear_idx]])
+    try:
+        w = linear.weight[neuron_idx].detach()
+        b = float(linear.bias[neuron_idx])
+    except IndexError:
+        return jsonify({"error": "Neuron index out of range"}), 400
+
+    return jsonify({
+        "type": "output" if layer_idx == len(layer_names) else "hidden",
+        "neuron": neuron_idx,
+        "bias": b,
+        "weights": {
+            "count": w.numel(),
+            "mean": float(w.mean()),
+            "std": float(w.std()),
+            "min": float(w.min()),
+            "max": float(w.max()),
+        }
+    })
 
 
 if __name__ == "__main__":
