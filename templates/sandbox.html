@@ -7,71 +7,119 @@
 {% endblock %}
 
 {% block content %}
+<div style="display: grid; grid-template-columns: 50% 50%;">
 <div class="window">
     <div class="window-title">
-        <span>LayerConfig.txt</span>
+        <span>Layer.config</span>
         <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
     </div>
 
     <div class="window-content">
+        <div class="layer-config-header">
+            <span>Layer</span>
+            <span>Numer of Neurons</span>
+            <span>Activation Function</span>
+            <span></span>
+        </div>
         <div id="layer-config"></div>
+        <hr>
         <button id="add-layer-button">+ Add Layer</button>
     </div>
 </div>
 
 <div class="window">
     <div class="window-title">
-        <span>ModelConfig.txt</span>
+        <span>Model.config</span>
         <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
     </div>
 
     <div class="window-content">
-        <label>Learning rate</label>
-        <input type="range" id="lr" min="0.0001" max="0.01" step="0.0001" value="0.001">
-        <span id="lr-display">0.0010</span>
+        <div class="form">
+            <label>Learning rate</label>
+            <input type="range" id="lr" min="0.0001" max="0.01" step="0.0001" value="0.001">
+            <span id="lr-display" style="text-align: right;">0.0010</span>
+        </div>
 
-        <label>Epochs</label>
-        <input type="range" id="epochs" min="1" max="20" step="1" value="1">
-        <span id="epochs-display">1</span>
+        <div class="form">
+            <label>Epochs</label>
+            <input type="range" id="epochs" min="1" max="20" step="1" value="1">
+            <span id="epochs-display" style="text-align: right;">1</span>
+        </div>
 
-        <label>Batch size</label>
-        <input type="range" id="batch" min="16" max="256" step="8" value="64">
-        <span id="batch-display">64</span>
+        <div class="form">
+            <label>Batch size</label>
+            <input type="range" id="batch" min="16" max="256" step="8" value="32">
+            <span id="batch-display" style="text-align: right;">32</span>
+        </div>
 
-        <label>Loss function</label>
-        <select id="loss">
-            <option value="cross_entropy">Cross entropy</option>
-            <option value="mse_loss">Mean squared error</option>
-            <option value="nll_loss">Negative log likelihood</option>
-        </select>
+        <div class="form">
+            <label>Loss function</label>
+            <select id="loss">
+                <option value="cross_entropy">Cross entropy</option>
+                <option value="mse_loss">Mean squared error</option>
+                <option value="nll_loss">Negative log likelihood</option>
+            </select>
+        </div>
 
-        <label>Optimizer</label>
-        <select id="optimizer">
-            <option value="adam">Adam</option>
-            <option value="sgd">SGD</option>
-        </select>
+        <div class="form">
+            <label>Optimizer</label>
+            <select id="optimizer">
+                <option value="adam">Adam</option>
+                <option value="sgd">SGD</option>
+            </select>
+        </div>
     </div>
 </div>
 
-    <button id="train-button">Train</button>
-    <div id="progress-bar">
-        {% for _ in range(12) %}
-            <div class="progress-block"></div>
-        {% endfor %}
+
+<div class="window" style="grid-column: span 2;">
+    <div class="window-title">
+        <span>VisualInspection.png</span>
     </div>
-    <button id="evaluate-button">Evaluate</button>
+
+    <div class="window-content">
+        <canvas id="network-canvas"></canvas>
+    </div>
 </div>
 
-<canvas id="network-canvas"></canvas>
+<div class="window">
+    <div class="window-title">
+        <span>Status.log</span>
+        <div class="title-buttons"><button>_</button><button>□</button><button>X</button></div>
+    </div>
 
-<div id="stats">
-    <span id="status">Ready</span>
-    <span id="accuracy-display"></span>
+    <div class="window-content" style="display: row;">
+        <button id="train-button">Train</button>
+        <button id="evaluate-button">Evaluate</button>
+
+        <div id="progress-bar">
+            {% for _ in range(12) %}
+                <div class="progress-block"></div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
-<canvas id="draw-canvas" width="280" height="280"></canvas>
-<button id="clear-button">Clear</button>
-<button id="predict-button">Predict</button>
-<div id="prediction-result"></div>
+
+<div class="window">
+    <div class="window-title">
+        <span>Predict.txt</span>
+    </div>
+
+    <div class="window-content" style="display: flex;">
+        <div id="stats">
+            <span id="status">Ready</span>
+            <span id="accuracy-display"></span>
+        </div>
+
+        <canvas id="draw-canvas" width="280" height="280"></canvas>
+        <hr>
+        <button id="clear-button">Clear</button>
+        <button id="predict-button">Predict</button>
+        <div id="prediction-result"></div>
+    </div>
+</div>
+
+</div>
 {% endblock %}
 

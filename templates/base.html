@@ -14,8 +14,7 @@
     <nav>
         {% for href, name in [(url_for('index'), 'Home'),
         (url_for('about'), 'About'),
-        (url_for('network'), 'Network Visualizer'),
-        (url_for('sandbox'), 'Neural Network Sandbox')] %}
+        (url_for('sandbox'), 'Sandbox')] %}
         <a href="{{ href }}">{{ name }}</a>
         {% endfor %}
     </nav>

@@ -1,32 +1,53 @@
 // ─── Layer config UI ─────────────────────────────────────────────────────────
 
-function addLayerConfigRow(size = 64, activation = 'relu', isInput = false, isOutput = false, insertBefore = null) {
+function addLayerConfigRow(size = 10, activation = 'relu', isInput = false, isOutput = false, insertBefore = null) {
     const container = document.getElementById('layer-config');
     const row = document.createElement('div');
     row.className = 'layer-config-row';
 
     row.innerHTML = `
+        <label class="row-label">''</label>
         <input type="number" class="layer-size" value="${size}" min="1" ${isInput ? 'readonly' : ''}>
         ${isOutput
-            ? `<span class="layer-activation-label">Linear (output)</span>`
+            ? `<label class="layer-activation-label">Linear</label>`
             : `<select class="layer-activation">
-                   <option value="relu"    ${activation === 'relu' ? 'selected' : ''}>ReLU</option>
+                   <option value="relu"    ${activation === 'relu'    ? 'selected' : ''}>ReLU</option>
                    <option value="sigmoid" ${activation === 'sigmoid' ? 'selected' : ''}>Sigmoid</option>
-                   <option value="tanh"    ${activation === 'tanh' ? 'selected' : ''}>Tanh</option>
-                   <option value="linear"  ${activation === 'linear' ? 'selected' : ''}>Linear</option>
+                   <option value="tanh"    ${activation === 'tanh'    ? 'selected' : ''}>Tanh</option>
+                   <option value="linear"  ${activation === 'linear'  ? 'selected' : ''}>Linear</option>
                </select>
-               ${!isInput ? '<button class="remove-row-button">Remove</button>' : ''}`
-        }
+               ${!isInput ? '<button class="remove-row-button">Remove</button>' : ''}`}
     `;
-
     if (!isInput && !isOutput) {
-        row.querySelector('.remove-row-button').addEventListener('click', () => row.remove());
+        row.querySelector('.remove-row-button').addEventListener('click', () => {
+            row.remove();
+            relabelRows(); // renumber after removal
+        });
     }
+
     if (insertBefore) {
         container.insertBefore(row, insertBefore);
     } else {
         container.appendChild(row);
     }
+
+    relabelRows(); // renumber after addition
+}
+
+function relabelRows() {
+    const rows = document.querySelectorAll('.layer-config-row');
+    let hiddenCount = 0;
+    rows.forEach((row, i) => {
+        const label = row.querySelector('.row-label');
+        if (i === 0) {
+            label.textContent = 'Input';
+        } else if (i === rows.length - 1) {
+            label.textContent = 'Output';
+        } else {
+            hiddenCount++;
+            label.textContent = `Hidden ${hiddenCount}`;
+        }
+    });
 }
 
 function getLayerSizesFromUI() {
@@ -134,18 +155,13 @@ const netCanvas = document.getElementById('network-canvas');
 const netCtx = netCanvas.getContext('2d');
 
 const MAX_VISIBLE = 10;
-const SHOW_TOP = 5;
-const NEURON_R = 10;
+const SHOW_TOP    = 5;
+const NEURON_R    = 10;
 
-function getColors() {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return {
-        neuronFill: isDark ? '#1D3A5F' : '#E6F1FB',
-        neuronStroke: isDark ? '#378ADD' : '#185FA5',
-        ellipsis: isDark ? '#888780' : '#5F5E5A',
-        conn: isDark ? '#378ADD0F' : '#185FA50F',
-    };
-}
+const NEURON_FILL   = '#E6F1FB';
+const NEURON_STROKE = '#185FA5';
+const CONN_COLOR    = '#185FA520';
+const ELLIPSIS_COLOR = '#5F5E5A';
 
 function visibleNeurons(count) {
     if (count <= MAX_VISIBLE) {
@@ -164,52 +180,61 @@ function realSlots(vis) {
     ];
 }
 
-function getNeuronY(vis, slot, H) {
-    const total = vis.hasEllipsis ? MAX_VISIBLE + 1 : vis.indices.length;
-    const spacing = Math.min(30, (H - 60) / Math.max(total, 1));
-    const startY = H / 2 - (total - 1) * spacing / 2;
-    return startY + slot * spacing;
+function getNeuronY(vis, slot, canvasHeight) {
+    const totalSlots  = vis.hasEllipsis ? MAX_VISIBLE + 1 : vis.indices.length;
+    const vertPadding = 60;
+    const maxSpacing  = 30;
+    const spacing     = Math.min(maxSpacing, (canvasHeight - vertPadding) / Math.max(totalSlots, 1));
+    const columnTop   = (canvasHeight - (totalSlots - 1) * spacing) / 2;
+    return columnTop + slot * spacing;
 }
 
 function drawNetwork(layers) {
     const W = netCanvas.offsetWidth;
-    netCanvas.width = W * devicePixelRatio;
-    netCanvas.height = netCanvas.offsetHeight * devicePixelRatio;
-    netCtx.scale(devicePixelRatio, devicePixelRatio);
     const H = netCanvas.offsetHeight;
-    const C = getColors();
 
-    netCtx.clearRect(0, 0, W, H);
+    netCanvas.width  = W * devicePixelRatio;
+    netCanvas.height = H * devicePixelRatio;
+    netCtx.scale(devicePixelRatio, devicePixelRatio);
 
-    const layerXs = layers.map((_, i) => 60 + (i / (layers.length - 1)) * (W - 120));
-    const layerVis = layers.map(n => visibleNeurons(n));
+    // White Win95-style background
+    netCtx.fillStyle = '#ffffff';
+    netCtx.fillRect(0, 0, W, H);
 
-    // Connections first (drawn underneath neurons)
-    netCtx.strokeStyle = C.conn;
-    netCtx.lineWidth = 0.5;
+    if (layers.length < 2) return;
+
+    const hPad     = 60;
+    const layerXs  = layers.map((_, i) => hPad + (i / (layers.length - 1)) * (W - 2 * hPad));
+    const layerVis = layers.map(count => visibleNeurons(count));
+
+    // Connections drawn first, behind neurons
+    netCtx.strokeStyle = CONN_COLOR;
+    netCtx.lineWidth   = 0.5;
     for (let li = 0; li < layers.length - 1; li++) {
-        const slotsA = realSlots(layerVis[li]);
-        const slotsB = realSlots(layerVis[li + 1]);
-        for (const sa of slotsA) {
-            for (const sb of slotsB) {
+        const fromSlots = realSlots(layerVis[li]);
+        const toSlots   = realSlots(layerVis[li + 1]);
+        for (const fromSlot of fromSlots) {
+            const x1 = layerXs[li];
+            const y1 = getNeuronY(layerVis[li], fromSlot, H);
+            for (const toSlot of toSlots) {
                 netCtx.beginPath();
-                netCtx.moveTo(layerXs[li], getNeuronY(layerVis[li], sa, H));
-                netCtx.lineTo(layerXs[li + 1], getNeuronY(layerVis[li + 1], sb, H));
+                netCtx.moveTo(x1, y1);
+                netCtx.lineTo(layerXs[li + 1], getNeuronY(layerVis[li + 1], toSlot, H));
                 netCtx.stroke();
             }
         }
     }
 
-    // Neurons on top
+    // Neurons and ellipses drawn on top of connections
     for (let li = 0; li < layers.length; li++) {
-        const vis = layerVis[li];
-        const x = layerXs[li];
+        const vis   = layerVis[li];
+        const x     = layerXs[li];
         const slots = realSlots(vis);
 
         if (vis.hasEllipsis) {
-            netCtx.fillStyle = C.ellipsis;
-            netCtx.font = '500 14px sans-serif';
-            netCtx.textAlign = 'center';
+            netCtx.fillStyle    = ELLIPSIS_COLOR;
+            netCtx.font         = '500 14px sans-serif';
+            netCtx.textAlign    = 'center';
             netCtx.textBaseline = 'middle';
             netCtx.fillText('···', x, getNeuronY(vis, SHOW_TOP, H));
         }
@@ -218,10 +243,10 @@ function drawNetwork(layers) {
             const y = getNeuronY(vis, slot, H);
             netCtx.beginPath();
             netCtx.arc(x, y, NEURON_R, 0, Math.PI * 2);
-            netCtx.fillStyle = C.neuronFill;
+            netCtx.fillStyle   = NEURON_FILL;
             netCtx.fill();
-            netCtx.strokeStyle = C.neuronStroke;
-            netCtx.lineWidth = 1;
+            netCtx.strokeStyle = NEURON_STROKE;
+            netCtx.lineWidth   = 1;
             netCtx.stroke();
         }
     }
@@ -275,7 +300,7 @@ document.getElementById('batch').addEventListener('input', (e) => {
 document.getElementById('add-layer-button').addEventListener('click', () => {
     const rows = document.querySelectorAll('.layer-config-row');
     const outputRow = rows[rows.length - 1];
-    addLayerConfigRow(64, 'relu', false, outputRow);
+    addLayerConfigRow(64, 'relu', false, false, outputRow);
 });
 
 document.getElementById('train-button').addEventListener('click', trainNetwork);

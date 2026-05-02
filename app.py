@@ -130,12 +130,17 @@ def train() -> Union[Response, Tuple[Response, int]]:
     trainer: Trainer = Trainer(current_network, config)
     
     # Simple synchronous training loop for the sandbox
+    epoch_losses = []
     for epoch in range(epochs):
+        epoch_loss = 0.0
+        batch_count = 0
         for images, labels in train_loader:
             images = images.reshape(images.size(0), -1)
-            trainer.train_step(images, labels)
-            
-    return jsonify({"message": f"Training complete for {epochs} epochs!"})
+            epoch_loss += trainer.train_step(images, labels)
+            batch_count += 1
+        epoch_losses.append(epoch_loss / batch_count)
+
+    return jsonify({"message": f"Training complete for {epochs} epochs!", "losses": epoch_losses})
 
 
 @app.route("/api/evaluate", methods=["POST"])
