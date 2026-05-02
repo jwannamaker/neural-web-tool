@@ -11,10 +11,10 @@ function addLayerConfigRow(size = 10, activation = 'relu', isInput = false, isOu
         ${isOutput
             ? `<label class="layer-activation-label">Linear</label>`
             : `<select class="layer-activation">
-                   <option value="relu"    ${activation === 'relu'    ? 'selected' : ''}>ReLU</option>
+                   <option value="relu"    ${activation === 'relu' ? 'selected' : ''}>ReLU</option>
                    <option value="sigmoid" ${activation === 'sigmoid' ? 'selected' : ''}>Sigmoid</option>
-                   <option value="tanh"    ${activation === 'tanh'    ? 'selected' : ''}>Tanh</option>
-                   <option value="linear"  ${activation === 'linear'  ? 'selected' : ''}>Linear</option>
+                   <option value="tanh"    ${activation === 'tanh' ? 'selected' : ''}>Tanh</option>
+                   <option value="linear"  ${activation === 'linear' ? 'selected' : ''}>Linear</option>
                </select>
                ${!isInput ? '<button class="remove-row-button">Remove</button>' : ''}`}
     `;
@@ -155,12 +155,12 @@ const netCanvas = document.getElementById('network-canvas');
 const netCtx = netCanvas.getContext('2d');
 
 const MAX_VISIBLE = 10;
-const SHOW_TOP    = 5;
-const NEURON_R    = 10;
+const SHOW_TOP = 5;
+const NEURON_R = 10;
 
-const NEURON_FILL   = '#E6F1FB';
+const NEURON_FILL = '#E6F1FB';
 const NEURON_STROKE = '#185FA5';
-const CONN_COLOR    = '#185FA520';
+const CONN_COLOR = '#185FA520';
 const ELLIPSIS_COLOR = '#5F5E5A';
 
 function visibleNeurons(count) {
@@ -181,11 +181,11 @@ function realSlots(vis) {
 }
 
 function getNeuronY(vis, slot, canvasHeight) {
-    const totalSlots  = vis.hasEllipsis ? MAX_VISIBLE + 1 : vis.indices.length;
+    const totalSlots = vis.hasEllipsis ? MAX_VISIBLE + 1 : vis.indices.length;
     const vertPadding = 60;
-    const maxSpacing  = 30;
-    const spacing     = Math.min(maxSpacing, (canvasHeight - vertPadding) / Math.max(totalSlots, 1));
-    const columnTop   = (canvasHeight - (totalSlots - 1) * spacing) / 2;
+    const maxSpacing = 30;
+    const spacing = Math.min(maxSpacing, (canvasHeight - vertPadding) / Math.max(totalSlots, 1));
+    const columnTop = (canvasHeight - (totalSlots - 1) * spacing) / 2;
     return columnTop + slot * spacing;
 }
 
@@ -193,7 +193,7 @@ function drawNetwork(layers) {
     const W = netCanvas.offsetWidth;
     const H = netCanvas.offsetHeight;
 
-    netCanvas.width  = W * devicePixelRatio;
+    netCanvas.width = W * devicePixelRatio;
     netCanvas.height = H * devicePixelRatio;
     netCtx.scale(devicePixelRatio, devicePixelRatio);
 
@@ -203,16 +203,16 @@ function drawNetwork(layers) {
 
     if (layers.length < 2) return;
 
-    const hPad     = 60;
-    const layerXs  = layers.map((_, i) => hPad + (i / (layers.length - 1)) * (W - 2 * hPad));
+    const hPad = 60;
+    const layerXs = layers.map((_, i) => hPad + (i / (layers.length - 1)) * (W - 2 * hPad));
     const layerVis = layers.map(count => visibleNeurons(count));
 
     // Connections drawn first, behind neurons
     netCtx.strokeStyle = CONN_COLOR;
-    netCtx.lineWidth   = 0.5;
+    netCtx.lineWidth = 0.5;
     for (let li = 0; li < layers.length - 1; li++) {
         const fromSlots = realSlots(layerVis[li]);
-        const toSlots   = realSlots(layerVis[li + 1]);
+        const toSlots = realSlots(layerVis[li + 1]);
         for (const fromSlot of fromSlots) {
             const x1 = layerXs[li];
             const y1 = getNeuronY(layerVis[li], fromSlot, H);
@@ -227,14 +227,14 @@ function drawNetwork(layers) {
 
     // Neurons and ellipses drawn on top of connections
     for (let li = 0; li < layers.length; li++) {
-        const vis   = layerVis[li];
-        const x     = layerXs[li];
+        const vis = layerVis[li];
+        const x = layerXs[li];
         const slots = realSlots(vis);
 
         if (vis.hasEllipsis) {
-            netCtx.fillStyle    = ELLIPSIS_COLOR;
-            netCtx.font         = '500 14px sans-serif';
-            netCtx.textAlign    = 'center';
+            netCtx.fillStyle = ELLIPSIS_COLOR;
+            netCtx.font = '500 14px sans-serif';
+            netCtx.textAlign = 'center';
             netCtx.textBaseline = 'middle';
             netCtx.fillText('···', x, getNeuronY(vis, SHOW_TOP, H));
         }
@@ -243,10 +243,10 @@ function drawNetwork(layers) {
             const y = getNeuronY(vis, slot, H);
             netCtx.beginPath();
             netCtx.arc(x, y, NEURON_R, 0, Math.PI * 2);
-            netCtx.fillStyle   = NEURON_FILL;
+            netCtx.fillStyle = NEURON_FILL;
             netCtx.fill();
             netCtx.strokeStyle = NEURON_STROKE;
-            netCtx.lineWidth   = 1;
+            netCtx.lineWidth = 1;
             netCtx.stroke();
         }
     }
